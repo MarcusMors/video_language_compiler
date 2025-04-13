@@ -1,0 +1,12 @@
+int x = 10
+x = x + 20
+
+// Comentario estilo C++
+float valor = 3.14;
+video demo = "miVideo.mp4";
+print(x)
+
+// Comentario con error léxico
+$esto_es_un_error
+== // Operador doble
+
