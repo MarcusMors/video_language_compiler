@@ -1,0 +1,32 @@
+contexto:
+Me dejaron crear un lenguaje que maneja videos en variables,
+por ejemplo
+a: video = "hola.mp4";
+b: video = "video_navidad.mp4";
+c: video = a ++ b;
+
+Yo tengo esta gramática como idea básica, puedes mejorarla:
+<code> -> main: () { <Statements> }
+<Statements> -> <Declaration>;
+<Statements> -> <Assignation>;
+<Statements> -> <Declaration and Assignation>;
+<Statements> -> <Loop>;
+<Statements> -> <Conditional>;
+<Statements> -> <value or instruction? help me here please, i want to allow single operations like input() or i++ or things like my_object.export("mp4")>;
+
+<Declaration> -> <identifier> : <type>;
+<Assignation> -> <identifier> = <value>;
+<Declaration and Assignation> -> <identifier> : <type> = <value>;
+<Declaration and Assignation> -> <identifier> : <type> = <value or instruction? help me here please, i want to allow basic operations in the right hand side, like (3*2)/2 + ((3)+(2)+(1))*2 or my_variable.split()>;
+
+<Types> -> string | float | int | video | bool | <list>
+<list> -> <type>[<number>]
+example here: string[10] to create a list of 10 strings or int[5][5] to create a matrix of 5x5
+
+<value> -> "<text>" | <number>.<number> | <number> | True | False
+
+<Conditional> -> if (<Expresion?? help here>) { <Statements> }
+<Loop> -> while (<Expresion?? help here>) { <Statements> }
+
+
+quiero que me ayudes a crear esta gramática, este lenguaje se inspira en cpp2. Puedes mejorar este draft

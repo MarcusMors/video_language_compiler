@@ -10,3 +10,6 @@ print(x)
 $esto_es_un_error
 == // Operador doble
 
+if (True){
+
+}
