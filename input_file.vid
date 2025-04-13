@@ -1,0 +1,14 @@
+// Test 1: Operaciones básicas
+a = 2 + 7.5
+b: video = "intro.mp4"
+c: string = 3
+
+// test 2: Condicionales
+if (not valid and count >= 5) {
+    print("Error")
+}
+
+// Test 3: Errores léxicos
+invalid@char = 3
+unclosed_string = "hello
+number = 123.45.67
