@@ -1,32 +1,53 @@
-contexto:
-Me dejaron crear un lenguaje que maneja videos en variables,
-por ejemplo
-a: video = "hola.mp4";
-b: video = "video_navidad.mp4";
-c: video = a ++ b;
+<Program>        -> "main:" "()" "{" <Statements> "}"
 
-Yo tengo esta gramática como idea básica, puedes mejorarla:
-<code> -> main: () { <Statements> }
-<Statements> -> <Declaration>;
-<Statements> -> <Assignation>;
-<Statements> -> <Declaration and Assignation>;
-<Statements> -> <Loop>;
-<Statements> -> <Conditional>;
-<Statements> -> <value or instruction? help me here please, i want to allow single operations like input() or i++ or things like my_object.export("mp4")>;
+<Statements>     -> <Statement>*
+<Statement>      -> <Identifier> <AfterId> ";"
+                  | <Loop>
+                  | <Conditional>
+                  | <Expression> ";"
 
-<Declaration> -> <identifier> : <type>;
-<Assignation> -> <identifier> = <value>;
-<Declaration and Assignation> -> <identifier> : <type> = <value>;
-<Declaration and Assignation> -> <identifier> : <type> = <value or instruction? help me here please, i want to allow basic operations in the right hand side, like (3*2)/2 + ((3)+(2)+(1))*2 or my_variable.split()>;
+<AfterId>        -> ":" <Type> [ "=" <Expression> ]   # Declaración
+                  | "=" <Expression>                  # Asignación
+                  
+<Type>           -> <BasicType> <ArraySuffix>*
+<BasicType>      -> "string" | "float" | "int" | "video" | "bool"
+<ArraySuffix>    -> "[" <IntegerLiteral> "]"
 
-<Types> -> string | float | int | video | bool | <list>
-<list> -> <type>[<number>]
-example here: string[10] to create a list of 10 strings or int[5][5] to create a matrix of 5x5
+<Expression>     -> <AssignmentExpr>
+<AssignmentExpr> -> <LogicalOrExpr> ["=" <AssignmentExpr>]
+<LogicalOrExpr>  -> <LogicalAndExpr> ("or" <LogicalAndExpr>)*
+<LogicalAndExpr> -> <EqualityExpr> ("and" <EqualityExpr>)*
+<EqualityExpr>   -> <RelationalExpr> [("==" | "!=") <RelationalExpr>]
+<RelationalExpr> -> <AdditiveExpr> [("<" | ">" | "<=" | ">=") <AdditiveExpr>]
+<AdditiveExpr>   -> <MultiplicativeExpr> [("+" | "-") <MultiplicativeExpr>]
+<MultiplicativeExpr> -> <ConcatExpr> [("*" | "/" | "%") <ConcatExpr>]
+<ConcatExpr>     -> <UnaryExpr> ("++" <UnaryExpr>)*
+<UnaryExpr>      -> ["not" | "-" | "++"] <PrimaryExpr>
+                  | <PrimaryExpr> ["++" | "--"]
+<PrimaryExpr>    -> <Literal>
+                  | <Identifier>
+                  | "(" <Expression> ")"
+                  | <FunctionCall>
+                  | <MemberAccess>
+                  | <ArrayAccess>
 
-<value> -> "<text>" | <number>.<number> | <number> | True | False
+<FunctionCall>   -> <Identifier> "(" <Arguments> ")"
+<MemberAccess>   -> <Identifier> "." <Identifier>
+<ArrayAccess>    -> <Identifier> "[" <Expression> "]"
 
-<Conditional> -> if (<Expresion?? help here>) { <Statements> }
-<Loop> -> while (<Expresion?? help here>) { <Statements> }
+<Literal>        -> <StringLiteral>
+                  | <NumericLiteral>
+                  | <BooleanLiteral>
+                  | <ListLiteral>
 
+<StringLiteral>  -> "\"" [^"]* "\""
+<NumericLiteral> -> <IntegerLiteral> | <FloatLiteral>
+<IntegerLiteral> -> [0-9]+
+<FloatLiteral>   -> [0-9]+ "." [0-9]+
+<BooleanLiteral> -> "True" | "False"
+<ListLiteral>    -> "[" [<Expression> ("," <Expression>)*] "]"
 
-quiero que me ayudes a crear esta gramática, este lenguaje se inspira en cpp2. Puedes mejorar este draft
+<Arguments>      -> <Expression> ("," <Expression>)*
+
+<Conditional>    -> "if" "(" <Expression> ")" "{" <Statements> "}" ["else" "{" <Statements> "}"]
+<Loop>           -> "while" "(" <Expression> ")" "{" <Statements> "}"

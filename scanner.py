@@ -60,6 +60,9 @@ class TokenType(enum.Enum):
     COMMENT = 'COMMENT'
     EOF = 'EOF'
     ERROR = 'ERROR'
+    
+    # ... (otros tokens)
+    DEBUG_OUTPUT = '@'  # Nuevo token especial
 
 @dataclass
 class Token:
@@ -153,6 +156,16 @@ class Lexer:
         self._skip_whitespace()
         c = self._peek_char()
         
+        if c == '@':
+            self._get_char()  # Consumir @
+            message = []
+            while (next_char := self._peek_char()) and next_char != '\n':
+                message.append(self._get_char())
+            debug_msg = ''.join(message).strip()
+            # Imprimir inmediatamente el mensaje de debug
+            print(f"DEBUG OUTPUT [{self.line}:{self.column}]: {debug_msg}")
+            return Token(TokenType.DEBUG_OUTPUT, debug_msg, self.line, self.column)
+        
         if not c:
             return Token(TokenType.EOF, '', self.line, self.column)
         
@@ -219,6 +232,7 @@ class Lexer:
             ':': TokenType.COLON,
             '<': TokenType.LT,
             '>': TokenType.GT,
+            '@': TokenType.DEBUG_OUTPUT,
         }
         
         if c in symbols:
