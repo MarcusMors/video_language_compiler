@@ -1,14 +1,19 @@
 <Program>        -> "main:" "()" "{" <Statements> "}"
 
 <Statements>     -> <Statement>*
-<Statement>      -> <Identifier> <AfterId> ";"
+<Statement>      -> <Identifier> <StatementIdTail>
                   | <Loop>
                   | <Conditional>
                   | <Expression> ";"
 
+<StatementIdTail> -> <AfterId> ";"          # Declaración/Asignación
+                   | <ExprAfterId> ";"      # Expresión que comienza con ID
+
 <AfterId>        -> ":" <Type> [ "=" <Expression> ]   # Declaración
                   | "=" <Expression>                  # Asignación
-                  
+
+<ExprAfterId>    -> <PostfixExpr>                    # Expresión que continúa después del ID
+
 <Type>           -> <BasicType> <ArraySuffix>*
 <BasicType>      -> "string" | "float" | "int" | "video" | "bool"
 <ArraySuffix>    -> "[" <IntegerLiteral> "]"
@@ -25,15 +30,19 @@
 <UnaryExpr>      -> ["not" | "-" | "++"] <PrimaryExpr>
                   | <PrimaryExpr> ["++" | "--"]
 <PrimaryExpr>    -> <Literal>
-                  | <Identifier>
+                  | <Identifier> <PostfixExpr>
                   | "(" <Expression> ")"
                   | <FunctionCall>
-                  | <MemberAccess>
-                  | <ArrayAccess>
 
-<FunctionCall>   -> <Identifier> "(" <Arguments> ")"
-<MemberAccess>   -> <Identifier> "." <Identifier>
-<ArrayAccess>    -> <Identifier> "[" <Expression> "]"
+<PostfixExpr>    -> <MemberAccess>*
+                  | <ArrayAccess>*
+                  | ε
+
+<MemberAccess>   -> "." <Identifier>
+<ArrayAccess>    -> "[" <Expression> "]"
+
+<FunctionCall>   -> "(" <Arguments> ")" <PostfixExpr>
+<Arguments>      -> <Expression> ("," <Expression>)*
 
 <Literal>        -> <StringLiteral>
                   | <NumericLiteral>
@@ -46,8 +55,6 @@
 <FloatLiteral>   -> [0-9]+ "." [0-9]+
 <BooleanLiteral> -> "True" | "False"
 <ListLiteral>    -> "[" [<Expression> ("," <Expression>)*] "]"
-
-<Arguments>      -> <Expression> ("," <Expression>)*
 
 <Conditional>    -> "if" "(" <Expression> ")" "{" <Statements> "}" ["else" "{" <Statements> "}"]
 <Loop>           -> "while" "(" <Expression> ")" "{" <Statements> "}"
