@@ -34,4 +34,3 @@ class Lexer:
             self.column += 1
             
         return char
-      
