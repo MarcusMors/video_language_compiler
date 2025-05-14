@@ -1,10 +1,10 @@
 main:() {
     valid_video: video = "intro.mp4";
-    result: video = valid_video ++ "outro.mp4";
-    le
+    valid_video2: video = "outro.mp4";
+    result: video = valid_video ++ valid_video2;
+    durations: int[2] = [10,30];
     
     if (durations[0] > 5) {
         trimmed: video = valid_video.split(0, durations[0]);
     }
-
 }

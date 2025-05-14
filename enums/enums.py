@@ -132,3 +132,8 @@ class SyntaxErrorType(enum.Enum):
     INVALID_CONCAT_OPERATOR = "Use '++' for video concatenation"
     INVALID_ARRAY_ACCESS = "Array access on non-array type"
     INVALID_IDENTIFIER = "Identifier cannot start with underscore"
+
+class SemanticErrorType(enum.Enum):
+    ARRAY_SIZE_MISMATCH = "Array literal size doesn't match declaration"
+    ARRAY_TYPE_MISMATCH = "Array element type doesn't match declaration"
+    INVALID_ARRAY_DECLARATION = "Invalid array declaration syntax"

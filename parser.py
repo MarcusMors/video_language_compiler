@@ -19,9 +19,10 @@ from typing import Any, Dict, List, Optional
 
 from sympy import true
 
-from enums.enums import SyntaxErrorType, Token, TokenType
+from enums.enums import SemanticErrorType, SyntaxErrorType, Token, TokenType
 
 DEBUG = True
+
 
 # ----------------------------
 #  Nodos del AST
@@ -32,7 +33,34 @@ class ASTNode:
 
 
 @dataclass
+class ListLiteralNode(ASTNode):
+    elements: List[ASTNode]
+
+    def print(self, level: int = 0) -> str:
+        elements_str = "\n".join([elem.print(level + 1) for elem in self.elements])
+        return f"{'  '*level}ListLiteral:\n{elements_str}"
+
+
+@dataclass
+class ArrayTypeNode(ASTNode):
+    base_type: str
+    dimensions: List[Optional[int]]  # None = dimensión dinámica
+
+    def print(self, level: int = 0) -> str:
+        dims = "".join(f"[{dim if dim else ''}]" for dim in self.dimensions)
+        return f"{'  '*level}ArrayType: {self.base_type}{dims}"
+
+
+@dataclass
+class ArrayLiteralNode(ASTNode):
+    elements: List[ASTNode]
+    inferred_type: Optional[str] = None
+
+
+@dataclass
 class FunctionCallNode(ASTNode):
+    function: ASTNode  # MemberAccessNode o IdentifierNode
+    arguments: List[ASTNode]
     func_name: str
     args: List[ASTNode]
     postfix: List[ASTNode]
@@ -176,32 +204,87 @@ class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.current_token = None
+        # self.current_token : Token = None
         self.errors = []
         self.symbol_table = {}
         self.advance()
 
-    def parse_function_call(self, identifier: ASTNode) -> ASTNode:
+    def validate_array_assignment(
+        self, identifier: str, array_type: ArrayTypeNode, literal: ListLiteralNode
+    ):
+        # Verificar tamaño si es array estático
+        if array_type.dimensions and array_type.dimensions[0] is not None:
+            expected_size = array_type.dimensions[0]
+            if len(literal.elements) != expected_size:
+                self.log_error(
+                    SemanticErrorType.ARRAY_SIZE_MISMATCH,
+                    f"Array '{identifier}' expects {expected_size} elements, got {len(literal.elements)}",
+                )
+
+        # Verificar tipos de elementos
+        for element in literal.elements:
+            if not self.type_matches(element, array_type.base_type):
+                self.log_error(
+                    SemanticErrorType.ARRAY_TYPE_MISMATCH,
+                    f"Array '{identifier}' expects {array_type.base_type}, found {self.get_type(element)}",
+                )
+
+    def parse_array_declaration(self, identifier: str):
+        # Analizar dimensiones
+        dims = []
+        while self.current_token.type == TokenType.LBRACKET:
+            self.advance()
+            if self.current_token.type == TokenType.INT_LITERAL:
+                dims.append(int(self.current_token.value))
+                self.advance()
+            else:
+                dims.append(None)  # Dimensión dinámica
+            self.expect(TokenType.RBRACKET, SyntaxErrorType.UNCLOSED_BRACKET)
+
+        # Registrar declaración
+        self.array_declarations[identifier] = (current_type, dims)
+
+    def validate_array_literal(self, identifier: str, literal: ArrayLiteralNode):
+        declared_type, declared_dims = self.array_declarations.get(
+            identifier, (None, None)
+        )
+
+        # Verificar tipo
+        for element in literal.elements:
+            if not self.type_check(element, declared_type):
+                self.log_error(
+                    SemanticErrorType.ARRAY_TYPE_MISMATCH,
+                    f"Expected {declared_type}, got {element.inferred_type}",
+                )
+
+        # Verificar tamaño si es array estático
+        if None not in declared_dims:
+            expected_size = reduce(lambda x, y: x * y, declared_dims)
+            if len(literal.elements) != expected_size:
+                self.log_error(
+                    SemanticErrorType.ARRAY_SIZE_MISMATCH,
+                    f"Expected {expected_size} elements, got {len(literal.elements)}",
+                )
+
+    def type_check(self, node: ASTNode, expected_type: str) -> bool:
+        if isinstance(node, LiteralNode):
+            return node.literal_type == expected_type
+        elif isinstance(node, IdentifierNode):
+            var_type, _ = self.array_declarations.get(node.name, (None, None))
+            return var_type == expected_type
+        return False
+
+    def parse_function_call(self, func: ASTNode) -> ASTNode:
         self.advance()  # Consume (
         args = self.parse_arguments()
-        if not self.expect(TokenType.RPAREN, SyntaxErrorType.UNCLOSED_PAREN):
-            self.synchronize()
+        self.expect(TokenType.RPAREN, SyntaxErrorType.UNCLOSED_PAREN)
+        return FunctionCallNode(func, args)
 
-        postfix = []
-        while self.current_token.type in {TokenType.DOT, TokenType.LBRACKET}:
-            if self.current_token.type == TokenType.DOT:
-                postfix.append(self.parse_member_access())
-            else:
-                postfix.append(self.parse_array_access(IdentifierNode(identifier.name)))
-
-        return FunctionCallNode(identifier.name, args, postfix)
-
-    def parse_member_access(self) -> MemberAccessNode:
+    def parse_member_access(self, obj: ASTNode) -> ASTNode:
         self.advance()  # Consume .
         member = self.current_token.value
-        if not self.expect(TokenType.IDENTIFIER, SyntaxErrorType.UNEXPECTED_TOKEN):
-            self.synchronize()
-            return MemberAccessNode(None, "error")
-        return MemberAccessNode(None, member)
+        self.expect(TokenType.IDENTIFIER, SyntaxErrorType.UNEXPECTED_TOKEN)
+        return MemberAccessNode(obj, member)
 
     def parse_arguments(self) -> List[ASTNode]:
         args = []
@@ -215,7 +298,7 @@ class Parser:
 
         return args
 
-    def parse_list_literal(self) -> ASTNode:
+    def parse_list_literal(self) -> ListLiteralNode:
         self.advance()  # Consume [
         elements = []
 
@@ -230,45 +313,63 @@ class Parser:
 
         return ListLiteralNode(elements)
 
-    def parse_postfix(self, identifier: ASTNode) -> ASTNode:
-        current_node = identifier
-        while self.current_token.type in {TokenType.DOT, TokenType.LBRACKET}:
+    def parse_postfix(self, primary: ASTNode) -> ASTNode:
+        current_node = primary
+        while True:
             if self.current_token.type == TokenType.DOT:
-                self.advance()  # Consume .
-                member = self.current_token.value
-                self.expect(TokenType.IDENTIFIER, SyntaxErrorType.UNEXPECTED_TOKEN)
-                current_node = MemberAccessNode(current_node, member)
+                current_node = self.parse_member_access(current_node)
             elif self.current_token.type == TokenType.LBRACKET:
                 current_node = self.parse_array_access(current_node)
+            elif self.current_token.type == TokenType.LPAREN:
+                current_node = self.parse_function_call(current_node)
+            else:
+                break
         return current_node
 
-    def parse_type(self) -> str:
-        type_token = self.current_token
-        if type_token.type not in {
-            TokenType.VIDEO_TYPE,
-            TokenType.STRING_TYPE,
-            TokenType.INT_TYPE,
-            TokenType.FLOAT_TYPE,
-            TokenType.BOOL_TYPE,
-        }:
-            self.log_error(SyntaxErrorType.INVALID_OPERATION, "valid type")
-            self.synchronize()
-            return "unknown"
+    # def parse_type(self) -> str:
+    #     type_token = self.current_token
+    #     if type_token.type not in {
+    #         TokenType.VIDEO_TYPE,
+    #         TokenType.STRING_TYPE,
+    #         TokenType.INT_TYPE,
+    #         TokenType.FLOAT_TYPE,
+    #         TokenType.BOOL_TYPE,
+    #     }:
+    #         self.log_error(SyntaxErrorType.INVALID_OPERATION, "valid type")
+    #         self.synchronize()
+    #         return "unknown"
 
+    #     self.advance()
+    #     array_dims = []
+    #     while self.current_token.type == TokenType.LBRACKET:
+    #         self.advance()
+    #         if not self.current_token.type == TokenType.INT_LITERAL:
+    #             self.log_error(
+    #                 SyntaxErrorType.INVALID_OPERATION, "integer literal for array size"
+    #             )
+    #         array_dims.append(self.current_token.value)
+    #         self.advance()
+    #         if not self.expect(TokenType.RBRACKET, SyntaxErrorType.UNCLOSED_BRACKET):
+    #             self.synchronize()
+
+    #     return f"{type_token.value}{''.join(f'[{dim}]' for dim in array_dims)}"
+
+    def parse_type(self) -> ArrayTypeNode:
+        base_type = self.current_token.value
         self.advance()
-        array_dims = []
-        while self.current_token.type == TokenType.LBRACKET:
-            self.advance()
-            if not self.current_token.type == TokenType.INT_LITERAL:
-                self.log_error(
-                    SyntaxErrorType.INVALID_OPERATION, "integer literal for array size"
-                )
-            array_dims.append(self.current_token.value)
-            self.advance()
-            if not self.expect(TokenType.RBRACKET, SyntaxErrorType.UNCLOSED_BRACKET):
-                self.synchronize()
 
-        return f"{type_token.value}{''.join(f'[{dim}]' for dim in array_dims)}"
+        dimensions = []
+        while self.current_token.type == TokenType.LBRACKET:
+            self.advance()  # Consume [
+            dimensions.append(
+                int(self.current_token.value)
+                if self.current_token.type == TokenType.INT_LITERAL
+                else None
+            )
+            self.advance()  # Consume tamaño o ]
+            self.expect(TokenType.RBRACKET, SyntaxErrorType.UNCLOSED_BRACKET)
+
+        return ArrayTypeNode(base_type, dimensions)
 
     def parse_literal(self) -> ASTNode:
         if self.current_token.type == TokenType.LBRACKET:
@@ -321,12 +422,12 @@ class Parser:
     def advance(self):
         self.current_token = self.lexer.get_token()
 
-    def log_error(self, error_type: SyntaxErrorType, expected: str = None):
-        msg = f"Syntax Error [{self.current_token.line}:{self.current_token.column}]: {error_type.value}"
-        if expected:
-            msg += f". Expected: {expected}"
+    def log_error(self, error_type: SemanticErrorType, context: str = ""):
+        msg = f"{error_type.value} at line {self.current_token.line}"
+        if context:
+            msg += f" ({context})"
         self.errors.append(msg)
-        print(f"ERROR: {msg}")
+        print(f"SEMANTIC ERROR: {msg}")
 
     def synchronize(self):
         sync_tokens = {
@@ -337,6 +438,15 @@ class Parser:
             TokenType.IF,
             TokenType.WHILE,
         }
+
+        skip_tokens = {
+            TokenType.SEMICOLON,
+            TokenType.RBRACE,
+            TokenType.LBRACE,
+            TokenType.EOF,
+        }
+        while self.current_token and self.current_token.type not in skip_tokens:
+            self.advance()
 
         while self.current_token.type not in sync_tokens:
             if DEBUG:
@@ -558,6 +668,8 @@ class Parser:
         return ArrayAccessNode(identifier, index)
 
     def parse_primary(self) -> ASTNode:
+        if self.current_token.type == TokenType.LBRACKET:
+            return self.parse_list_literal()
         if self.current_token.type == TokenType.IDENTIFIER:
             identifier = self.parse_identifier()
             # Manejar acceso a array
@@ -584,25 +696,31 @@ class Parser:
         self.advance()
         return node
 
-    def parse_literal(self) -> ASTNode:
-        token = self.current_token
-        self.advance()
-        return LiteralNode(token.value, token.type.name.replace("_LITERAL", "").lower())
+    def validate_array_declaration(
+        self, identifier: str, array_type: ArrayTypeNode, literal: ListLiteralNode
+    ):
+        # Verificar cantidad de dimensiones
+        if len(array_type.dimensions) != 1:
+            self.log_error(
+                SemanticErrorType.INVALID_ARRAY_DECLARATION,
+                f"Expected 1D array, got {len(array_type.dimensions)}D",
+            )
 
-    def parse_type(self) -> str:
-        type_token = self.current_token
-        if type_token.type not in {
-            TokenType.VIDEO_TYPE,
-            TokenType.STRING_TYPE,
-            TokenType.INT_TYPE,
-            TokenType.FLOAT_TYPE,
-            TokenType.BOOL_TYPE,
-        }:
-            self.log_error(SyntaxErrorType.INVALID_OPERATION, "valid type")
-            return "unknown"
+        # Verificar tamaño si es array estático
+        declared_size = array_type.dimensions[0]
+        if declared_size is not None and len(literal.elements) != declared_size:
+            self.log_error(
+                SemanticErrorType.ARRAY_SIZE_MISMATCH,
+                f"Declared size {declared_size}, got {len(literal.elements)}",
+            )
 
-        self.advance()
-        return type_token.value
+        # Verificar tipos de elementos
+        for element in literal.elements:
+            if not self.check_type(element, array_type.base_type):
+                self.log_error(
+                    SemanticErrorType.ARRAY_TYPE_MISMATCH,
+                    f"Expected {array_type.base_type}, got {element.inferred_type}",
+                )
 
 
 # ----------------------------
@@ -614,8 +732,8 @@ def main():
     from lexer import Lexer, TokenType  # Asumiendo el lexer anterior
 
     try:
-        # with open("tests/direct_debug_comment.vid", "r", encoding="utf-8") as f:
-        with open("tests/direct_debug_comment_good.vid", "r", encoding="utf-8") as f:
+        with open("tests/direct_debug_comment.vid", "r", encoding="utf-8") as f:
+            # with open("tests/direct_debug_comment_good.vid", "r", encoding="utf-8") as f:
             code = f.read()
 
         print("Analizando archivo direct_debug_comment.vid...\n")

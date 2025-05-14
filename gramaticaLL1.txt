@@ -31,7 +31,10 @@
                             | "video"
                             | "bool"
 
-<ListaSufijosArray>        -> "[" INT_LITERAL "]" <ListaSufijosArray>
+<ListaSufijosArray>        -> "[" <ArraySizeOpt> "]" <ListaSufijosArray>
+                            | ε
+
+<ArraySizeOpt>             -> INT_LITERAL
                             | ε
 
 <Expresion>                -> <Asignacion>
