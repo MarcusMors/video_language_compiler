@@ -1,18 +1,3 @@
-# Copyright (C) 2025 José Enrique Vilca Campana
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import enum
 from dataclasses import dataclass
 
@@ -131,3 +116,19 @@ class Token:
     value: str
     line: int
     column: int
+
+class SyntaxErrorType(enum.Enum):
+    MISSING_SEMICOLON = "Missing ';' at end of statement"
+    MISSING_COLON = "Missing ':' in declaration"
+    MISSING_ASSIGN = "Missing '=' in assignment"
+    UNCLOSED_BRACE = "Unclosed '{' block"
+    UNCLOSED_PAREN = "Unclosed '(' in expression"
+    UNCLOSED_BRACKET = "Unclosed '[' in array access"
+    TYPE_MISMATCH = "Type mismatch in expression"
+    UNDECLARED_VARIABLE = "Undeclared variable"
+    DUPLICATE_DECLARATION = "Duplicate variable declaration"
+    INVALID_OPERATION = "Invalid operation for type"
+    UNEXPECTED_TOKEN = "Unexpected token"
+    INVALID_CONCAT_OPERATOR = "Use '++' for video concatenation"
+    INVALID_ARRAY_ACCESS = "Array access on non-array type"
+    INVALID_IDENTIFIER = "Identifier cannot start with underscore"

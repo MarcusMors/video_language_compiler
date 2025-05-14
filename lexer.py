@@ -6,6 +6,8 @@ from typing import Dict, List, Optional, Tuple
 
 from enums.enums import KEYWORDS, Token, TokenType, compound_ops, symbols
 
+# from scanner import Scanner
+
 # Configuración de logging
 DEBUG = True
 
@@ -17,6 +19,7 @@ class Lexer:
         self.line = 1
         self.column = 1
         self.errors: List[str] = []
+        # self.scanner = Scanner(input_text)
 
     def _peek_char(self, lookahead: int = 0) -> Optional[str]:
         pos = self.pos + lookahead

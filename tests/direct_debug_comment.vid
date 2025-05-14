@@ -1,5 +1,4 @@
 main:() {
-    @ Esto es un mensaje de debug directo
     video1: video = "intro.mp4";
     @ Aquí empieza la concatenación
     result: video = video1 ++ "outro.mp4";
@@ -13,7 +12,7 @@ main:() {
     a[10];
     "this_string_has_a_problem/n_i_guess"
     @ ------------> Prueba while <-----------------
-    id: while {
+    while (True) {
         while while { while(while) }
         break id;
     }

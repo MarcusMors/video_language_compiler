@@ -1,0 +1,10 @@
+main:() {
+    valid_video: video = "intro.mp4";
+    result: video = valid_video ++ "outro.mp4";
+    le
+    
+    if (durations[0] > 5) {
+        trimmed: video = valid_video.split(0, durations[0]);
+    }
+
+}
