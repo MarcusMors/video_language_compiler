@@ -1,0 +1,5 @@
+main:(){
+    x:int = 10;
+    y:int;
+    z = x;
+}
