@@ -1,0 +1,4 @@
+main {
+    int:prueba = 1 + "two";
+            
+}
