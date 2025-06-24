@@ -1,0 +1,46 @@
+
+main {
+
+    // ── 1. Declaración de variables de todos los tipos ───────────────
+    int:    ancho      = 1920;
+    int:    alto       = 1080;
+    float:  escala     = 1.5;
+    string: titulo     = "Mi video personal";
+
+    video:  intro      = "intro.mp4";
+    audio:  cancion    = "musica.mp3";
+
+    // ── 2. Asignaciones con expresiones aritméticas y lógicas ─────────
+    ancho  = ancho + 80 / 2 - 10;                    // int
+    escala = (escala * 2.0) / 3.0;                   // float
+
+    // ── 3. Llamadas a TODAS las funciones especiales de vídeo ────────
+    intro = @resize[intro, 1280, 720];
+    intro = @flip["horizontal"];
+    intro = @velocidad[1];
+    intro = @fadein[2.0];
+    intro = @fadeout[3.5];
+    intro = @silencio[];
+    intro = @quitar_audio[];
+    intro = @agregar_musica["musica.mp3"];
+    intro = @concatenar[intro, intro];
+    intro = @cortar[10, 20];
+
+    // ── 4. Control de flujo: IF-ELSE y WHILE ─────────────────────────
+    if (es_horizontal) {
+        intro = @flip["vertical"];     // camino verdadero
+    } else {
+        intro = @flip["horizontal"];   // camino falso
+    }
+
+    int: i = 0;
+    while (i < 3) {
+        intro = @velocidad[10];
+        i = i + 1;
+    }
+
+    // ── 5. Exportación de resultados ─────────────────────────────────
+    exportar intro   como "salida.mp4";
+    exportar cancion como "salida.mp3";
+}
+
