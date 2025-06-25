@@ -378,6 +378,12 @@ def visualize_ast(ast, fname="ast"):
             children = [n.left, n.right]
         elif isinstance(n, VideoFuncCall):
             children = n.args
+        elif isinstance(n, IfStmt):
+            children = [n.condition, n.then_block]
+            if n.else_block:
+                children.append(n.else_block)
+        elif isinstance(n, WhileStmt):
+            children = [n.condition, n.body]
 
         for ch in children:
             walk(ch, uid)
