@@ -155,10 +155,14 @@ class IfStmt(ASTNode):
             )
         # Check both blocks with their own scope
         then_st = st.copy()
-        self.then_block.check_semantic(then_st)
+        for stmt in self.then_block:
+            if hasattr(stmt, "check_semantic"):
+                stmt.check_semantic(then_st)
         if self.else_block:
             else_st = st.copy()
-            self.else_block.check_semantic(else_st)
+            for stmt in self.else_block:
+                if hasattr(stmt, "check_semantic"):
+                    stmt.check_semantic(else_st)
 
 
 class WhileStmt(ASTNode):
@@ -178,7 +182,9 @@ class WhileStmt(ASTNode):
             )
         # Check body with its own scope
         body_st = st.copy()
-        self.body.check_semantic(body_st)
+        for stmt in self.body:
+            if hasattr(stmt, "check_semantic"):
+                stmt.check_semantic(body_st)
 
 
 # ─────────────────── Construcción del AST ───────────────────
@@ -194,6 +200,14 @@ def _collect_statements(node):
     first = _build_statement(node.children[0])
     rest = _collect_statements(node.children[1])
     return ([first] if first else []) + rest
+
+
+def build_block(block_node):
+    """Build a list of statements from a block node without creating a Program node"""
+    if not block_node or not block_node.children:
+        return []
+    stmtlist = block_node.children[1]  # Skip '{' token
+    return _collect_statements(stmtlist)
 
 
 def _build_statement(node):
@@ -219,17 +233,17 @@ def _build_statement(node):
     if prod.symbol == "IfStmt":
         if_tok = prod.children[0].token  # 'if' token
         condition = build_expr(prod.children[2])  # Expression between parentheses
-        then_block = build_ast(prod.children[4])  # Block after condition
+        then_block = build_block(prod.children[4])  # Block after condition
         # Check for optional else block
         else_block = None
         if len(prod.children) > 5 and prod.children[5].children:  # Has ElseOpt with content
-            else_block = build_ast(prod.children[5].children[1])  # Block after 'else'
+            else_block = build_block(prod.children[5].children[1])  # Block after 'else'
         return IfStmt(condition, then_block, else_block, if_tok.line, if_tok.column)
 
     if prod.symbol == "WhileStmt":
         while_tok = prod.children[0].token  # 'while' token
         condition = build_expr(prod.children[2])  # Expression between parentheses
-        body = build_ast(prod.children[4])  # Block after condition
+        body = build_block(prod.children[4])  # Block after condition
         return WhileStmt(condition, body, while_tok.line, while_tok.column)
 
     return None
@@ -379,11 +393,30 @@ def visualize_ast(ast, fname="ast"):
         elif isinstance(n, VideoFuncCall):
             children = n.args
         elif isinstance(n, IfStmt):
-            children = [n.condition, n.then_block]
+            children = [n.condition]
+            # Create a "ThenBlock" node for better visualization
+            if n.then_block:
+                then_uid = str(id(n)) + "_then"
+                dot.node(then_uid, "ThenBlock")
+                dot.edge(uid, then_uid)
+                for stmt in n.then_block:
+                    walk(stmt, then_uid)
+            # Create an "ElseBlock" node for better visualization
             if n.else_block:
-                children.append(n.else_block)
+                else_uid = str(id(n)) + "_else"
+                dot.node(else_uid, "ElseBlock")
+                dot.edge(uid, else_uid)
+                for stmt in n.else_block:
+                    walk(stmt, else_uid)
         elif isinstance(n, WhileStmt):
-            children = [n.condition, n.body]
+            children = [n.condition]
+            # Create a "BodyBlock" node for better visualization
+            if n.body:
+                body_uid = str(id(n)) + "_body"
+                dot.node(body_uid, "BodyBlock")
+                dot.edge(uid, body_uid)
+                for stmt in n.body:
+                    walk(stmt, body_uid)
 
         for ch in children:
             walk(ch, uid)
