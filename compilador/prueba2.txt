@@ -11,8 +11,8 @@ main {
     audio:  cancion    = "musica.mp3";
 
     // ── 2. Asignaciones con expresiones aritméticas y lógicas ─────────
-    ancho  = ancho + 80 / 2 - 10;                    // int
-    escala = (escala * 2.0) / 3.0;                   // float
+    ancho  = ancho + 80 / 2 - 10;// int
+    escala = (escala * 2.0) / 3.0;// float
 
     // ── 3. Llamadas a TODAS las funciones especiales de vídeo ────────
     intro = @resize[intro, 1280, 720];

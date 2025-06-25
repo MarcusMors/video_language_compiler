@@ -22,6 +22,19 @@ class Program(ASTNode):
     def __init__(self, statements):
         self.statements = statements
 
+    def check_semantic(self, st):
+        errors = []
+        for stmt in self.statements:
+            try:
+                if hasattr(stmt, "check_semantic"):
+                    stmt.check_semantic(st)
+            except Exception as exc:
+                errors.append(str(exc))
+                if isinstance(stmt, VarDecl):
+                    st[stmt.name] = stmt.var_type  # evitar cascada
+        if errors:
+            raise Exception("\n".join(errors))
+
 
 class VarDecl(ASTNode):
     def __init__(self, var_type, name, init, line, col):
@@ -390,19 +403,12 @@ def main():
         sys.exit(1)
 
     ast = build_ast(pt)
-    st, errors = {}, []
-    for stmt in ast.statements:
-        try:
-            if hasattr(stmt, "check_semantic"):
-                stmt.check_semantic(st)
-        except Exception as exc:
-            errors.append(str(exc))
-            if isinstance(stmt, VarDecl):
-                st[stmt.name] = stmt.var_type  # evitar cascada
-
-    if errors:
-        print("\\n--- ERRORES SEMÁNTICOS ---")
-        for err in errors:
+    st = {}
+    try:
+        ast.check_semantic(st)
+    except Exception as e:
+        print("\n--- ERRORES SEMÁNTICOS ---")
+        for err in str(e).split("\n"):
             print("  -", err)
         sys.exit(1)
 
