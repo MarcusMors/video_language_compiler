@@ -124,6 +124,50 @@ class VideoFuncCall(ASTNode):
         return "video"
 
 
+class IfStmt(ASTNode):
+    def __init__(self, condition, then_block, else_block, line, col):
+        self.condition = condition
+        self.then_block = then_block
+        self.else_block = else_block
+        self.line = line
+        self.col = col
+    
+    def check_semantic(self, st):
+        # Check that condition is boolean
+        cond_type = self.condition.infer_type(st)
+        if cond_type not in {"bool", "int"}:  # Allow int for flexibility
+            raise TypeError(
+                f"Error semántico en línea {self.line}, columna {self.col}: "
+                f"la condición debe ser de tipo 'bool' o 'int', no '{cond_type}'"
+            )
+        # Check both blocks with their own scope
+        then_st = st.copy()
+        self.then_block.check_semantic(then_st)
+        if self.else_block:
+            else_st = st.copy()
+            self.else_block.check_semantic(else_st)
+
+
+class WhileStmt(ASTNode):
+    def __init__(self, condition, body, line, col):
+        self.condition = condition
+        self.body = body
+        self.line = line
+        self.col = col
+    
+    def check_semantic(self, st):
+        # Check that condition is boolean
+        cond_type = self.condition.infer_type(st)
+        if cond_type not in {"bool", "int"}:  # Allow int for flexibility
+            raise TypeError(
+                f"Error semántico en línea {self.line}, columna {self.col}: "
+                f"la condición debe ser de tipo 'bool' o 'int', no '{cond_type}'"
+            )
+        # Check body with its own scope
+        body_st = st.copy()
+        self.body.check_semantic(body_st)
+
+
 # ─────────────────── Construcción del AST ───────────────────
 def build_ast(pt_root):
     block = pt_root.children[1]        # MAIN Block EOF
@@ -158,6 +202,22 @@ def _build_statement(node):
         name_tok = prod.children[1].token
         out_tok = prod.children[3].token
         return ExportStmt(name_tok.value, out_tok.value, exp_tok.line, exp_tok.column)
+
+    if prod.symbol == "IfStmt":
+        if_tok = prod.children[0].token  # 'if' token
+        condition = build_expr(prod.children[2])  # Expression between parentheses
+        then_block = build_ast(prod.children[4])  # Block after condition
+        # Check for optional else block
+        else_block = None
+        if len(prod.children) > 5 and prod.children[5].children:  # Has ElseOpt with content
+            else_block = build_ast(prod.children[5].children[1])  # Block after 'else'
+        return IfStmt(condition, then_block, else_block, if_tok.line, if_tok.column)
+
+    if prod.symbol == "WhileStmt":
+        while_tok = prod.children[0].token  # 'while' token
+        condition = build_expr(prod.children[2])  # Expression between parentheses
+        body = build_ast(prod.children[4])  # Block after condition
+        return WhileStmt(condition, body, while_tok.line, while_tok.column)
 
     return None
 
