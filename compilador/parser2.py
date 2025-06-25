@@ -14,6 +14,7 @@ from lexer2 import Lexer
 from grammar_def2 import PARSING_TABLE, EPSILON, START_SYMBOL
 from graphviz import Digraph
 
+
 class ParseNode:
     """Nodo del parse tree: puede ser un terminal (TokenType) o un no-terminal (str)."""
     def __init__(self, symbol, token=None):
@@ -125,13 +126,32 @@ def visualize_parse_tree(root: ParseNode, outname: str = 'parsetree'):
         label = str(n.symbol)
         if n.token:
             label += f"\n{n.token.value}"
-        dot.node(uid, label)
+        
+        # Node styling based on symbol type
+        style = 'filled'
+        fillcolor = "#f4ecd8"  # default color
+        penwidth = '1.0'  # default border width
+        
+        # Control flow and loop styling
+        if isinstance(n.symbol, TokenType):
+            if n.symbol in (TokenType.IF, TokenType.ELSE):
+                fillcolor = "#82c7a5"  # Control flow color
+            elif n.symbol == TokenType.WHILE:
+                fillcolor = "#d9a6ff"  # Loop color
+                penwidth = '2.0'  # Bold border for loops
+        
+        dot.node(uid, label, style=style, fillcolor=fillcolor, penwidth=penwidth)
+        
         if parent_id:
             dot.edge(parent_id, uid)
         for ch in n.children:
             visit(ch, uid)
 
     visit(root)
+    
+    # dot.attr(bgcolor='#f4ecd8') #light sepia
+    dot.attr(bgcolor='#7d540d') #dark yellow
+    
     dot.render(outname, cleanup=True)
     print(f"Parse tree visualizado en {outname}.png")
 

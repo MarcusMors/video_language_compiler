@@ -26,6 +26,8 @@ main {
     intro = @concatenar[intro, intro];
     intro = @cortar[10, 20];
 
+    int: es_horizontal = 1; 
+
     // ── 4. Control de flujo: IF-ELSE y WHILE ─────────────────────────
     if (es_horizontal) {
         intro = @flip["vertical"];     // camino verdadero

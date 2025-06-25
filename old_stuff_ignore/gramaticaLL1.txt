@@ -1,0 +1,113 @@
+<Programa>                 -> "main" <MainRest> EOF
+<MainRest>                 -> ":" "(" ")" <Bloque>
+                            | "(" ")" <Bloque>
+
+<Bloque>                   -> "{" <ListaSentenciasOpt> "}"
+<ListaSentenciasOpt>       -> <Sentencia> <ListaSentenciasOpt>
+                            | ε
+
+<Sentencia>                -> DEBUG_OUTPUT
+                            | "if" "(" <Expresion> ")" <Bloque> <ParteElseOpt>
+                            | "while" "(" <Expresion> ")" <Bloque>
+                            | IDENTIFIER <SentenciaIdResto>
+                            | <SentenciaExprNoId>
+
+<ParteElseOpt>             -> "else" <Bloque>
+                            | ε
+
+<SentenciaIdResto>         -> ":" <Tipo> <InitOpt> ";"
+                            | "=" <Expresion> ";"
+                            | <Postfija> ";"
+
+<InitOpt>                  -> "=" <Expresion>
+                            | ε
+
+<SentenciaExprNoId>        -> <ExpresionSinId> ";"
+
+<Tipo>                     -> <TipoBasico> <ListaSufijosArray>
+<TipoBasico>               -> "string"
+                            | "float"
+                            | "int"
+                            | "video"
+                            | "bool"
+
+<ListaSufijosArray>        -> "[" <ArraySizeOpt> "]" <ListaSufijosArray>
+                            | ε
+
+<ArraySizeOpt>             -> INT_LITERAL
+                            | ε
+
+<Expresion>                -> <Asignacion>
+
+<Asignacion>               -> <OrLogico> <AsignacionResto>
+<AsignacionResto>          -> "=" <Asignacion>
+                            | ε
+
+<OrLogico>                 -> <AndLogico> <OrLogicoResto>
+<OrLogicoResto>            -> "or" <AndLogico> <OrLogicoResto>
+                            | ε
+
+<AndLogico>                -> <Igualdad> <AndLogicoResto>
+<AndLogicoResto>           -> "and" <Igualdad> <AndLogicoResto>
+                            | ε
+
+<Igualdad>                 -> <Relacional> <IgualdadResto>
+<IgualdadResto>            -> ("==" | "!=") <Relacional> <IgualdadResto>
+                            | ε
+
+<Relacional>               -> <Aditiva> <RelacionalResto>
+<RelacionalResto>          -> ("<" | ">" | "<=" | ">=") <Aditiva> <RelacionalResto>
+                            | ε
+
+<Aditiva>                  -> <Multiplicativa> <AditivaResto>
+<AditivaResto>             -> ("+" | "-" | "++") <Multiplicativa> <AditivaResto>
+                            | ε
+
+<Multiplicativa>           -> <Unaria> <MultiplicativaResto>
+<MultiplicativaResto>      -> ("*" | "/" | "%") <Unaria> <MultiplicativaResto>
+                            | ε
+
+<Unaria>                   -> <Prefijos> <Postfija>
+<Prefijos>                 -> ("not" | "-" | "++") <Prefijos>
+                            | ε
+
+<Postfija>                 -> <Primaria> <SecuenciaPostfijo>
+
+<SecuenciaPostfijo>        -> <AccesoMiembro>
+                            | <AccesoArray>
+                            | <LlamadaFuncion>
+                            | ε
+
+<AccesoMiembro>            -> "." IDENTIFIER <SecuenciaPostfijo>
+<AccesoArray>              -> "[" <Expresion> "]" <SecuenciaPostfijo>
+<LlamadaFuncion>           -> "(" <ListaArgumentosOpt> ")" <SecuenciaPostfijo>
+
+<ListaArgumentosOpt>       -> <ListaArgumentos>
+                            | ε
+<ListaArgumentos>          -> <Expresion> <ListaArgumentosResto>
+<ListaArgumentosResto>     -> "," <Expresion> <ListaArgumentosResto>
+                            | ε
+
+<Primaria>                 -> IDENTIFIER
+                            | <Literal>
+                            | "(" <Expresion> ")"
+
+<Literal>                  -> STRING_LITERAL
+                            | INT_LITERAL
+                            | FLOAT_LITERAL
+                            | BOOL_LITERAL          # true / false
+                            | <ListLiteral>
+
+<ListLiteral>              -> "[" <ElementosOpt> "]"
+<ElementosOpt>             -> <Elementos>
+                            | ε
+<Elementos>                -> <Expresion> <ElementosResto>
+<ElementosResto>           -> "," <Expresion> <ElementosResto>
+                            | ε
+
+<ExpresionSinId>           -> "(" <Expresion> ")"
+                            | <Literal>
+                            | ("not" | "-" | "++") <Unaria>
+
+
+https://docs.google.com/spreadsheets/d/1vt9nhaCV2r5-SdGTyZ0Zof7EkqtkXe_SsUkpkvcJ9n4/edit?usp=sharing
