@@ -17,6 +17,7 @@ class Translator:
     def __init__(self):
         self.output = []
         self.indent_level = 0
+        self.symbol_table = {}  # Add symbol table to track variable types
         
     def indent(self):
         self.indent_level += 1
@@ -44,6 +45,8 @@ class Translator:
     def translate_statement(self, stmt):
         if isinstance(stmt, VarDecl):
             self.translate_var_decl(stmt)
+            # Store variable type in symbol table
+            self.symbol_table[stmt.name] = stmt.var_type
         elif isinstance(stmt, Assignment):
             self.translate_assignment(stmt)
         elif isinstance(stmt, ExportStmt):
@@ -71,7 +74,12 @@ class Translator:
     def translate_export(self, export):
         # Asegurarse de que el nombre del archivo tenga comillas
         out_file = export.out_file.strip('"')  # Remover comillas existentes
-        self.write(f'{export.name}.write_videofile("{out_file}")')
+        # Check variable type in symbol table
+        var_type = self.symbol_table.get(export.name)
+        if var_type == "audio":
+            self.write(f'{export.name}.write_audiofile("{out_file}")')
+        else:
+            self.write(f'{export.name}.write_videofile("{out_file}")')
         
     def translate_if(self, if_stmt):
         condition = self.translate_expr(if_stmt.condition)
@@ -125,8 +133,7 @@ class Translator:
         # Limpiar y formatear argumentos
         def format_arg(arg):
             if isinstance(arg, str) and (arg.startswith('"') or arg.endswith('"')):
-                # Limpiar comillas existentes y agregar nuevas
-                return f'"{arg.strip('"')}"'
+                return f'"{arg.strip('"')}"' # Reiniciar comillas
             return arg
 
         args = [format_arg(self.translate_expr(arg)) for arg in func.args]
@@ -134,46 +141,46 @@ class Translator:
         # Mapeo de funciones de video a moviepy con validación de argumentos
         video_funcs = {
             "@resize": lambda args: (
-                f"resize(width={args[1]}, height={args[2]})" 
+                f".resize(width={args[1]}, height={args[2]})" 
                 if len(args) >= 3 
-                else "resize()"
+                else ".resize()"
             ),
             "@flip": lambda args: (
-                f"fx(vfx.mirror_x)" 
+                f".fx(vfx.mirror_x)" 
                 if len(args) > 0 and "horizontal" in args[0].strip('"') 
-                else f"fx(vfx.mirror_y)"
+                else f".fx(vfx.mirror_y)"
             ),
             "@velocidad": lambda args: (
-                f"speedx({args[0]})" 
+                f".speedx({args[0]})" 
                 if len(args) > 0 
-                else "speedx(1.0)"
+                else ".speedx(1.0)"
             ),
             "@fadein": lambda args: (
-                f"fadein({args[0]})" 
+                f".fadein({args[0]})" 
                 if len(args) > 0 
-                else "fadein(1.0)"
+                else ".fadein(1.0)"
             ),
             "@fadeout": lambda args: (
-                f"fadeout({args[0]})" 
+                f".fadeout({args[0]})" 
                 if len(args) > 0 
-                else "fadeout(1.0)"
+                else ".fadeout(1.0)"
             ),
-            "@silencio": lambda args: "without_audio()",
-            "@quitar_audio": lambda args: "without_audio()",
+            "@silencio": lambda args: ".without_audio()",
+            "@quitar_audio": lambda args: ".without_audio()",
             "@agregar_musica": lambda args: (
-                f"set_audio(AudioFileClip({args[0]}))" 
+                f".set_audio(AudioFileClip({args[0]}))" 
                 if len(args) > 0 
-                else "set_audio(None)"
+                else ".set_audio(None)"
             ),
             "@concatenar": lambda args: (
-                f"concatenate_videoclips([{args[0]}, {args[1]}])" 
+                f".concatenate_videoclips([{args[0]}, {args[1]}])" 
                 if len(args) >= 2 
-                else "concatenate_videoclips([])"
+                else ".concatenate_videoclips([])"
             ),
             "@cortar": lambda args: (
-                f"subclip({args[0]}, {args[1]})" 
+                f".subclip({args[0]}, {args[1]})" 
                 if len(args) >= 2 
-                else "subclip(0)"
+                else ".subclip(0)"
             )
         }
         
@@ -184,7 +191,7 @@ class Translator:
             return video_funcs[func.func](args)
         except Exception as e:
             print(f"Error al traducir función {func.func} con argumentos {args}: {str(e)}")
-            return f"{func.func.replace('@', '')}()"
+            return f".{func.func.replace('@', '')}()"
 
 def main():
     if len(sys.argv) != 3:

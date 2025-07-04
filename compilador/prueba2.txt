@@ -3,10 +3,10 @@ main {
 
     // ── 1. Declaración de variables de todos los tipos ───────────────
     int:    ancho      = 1920;
-    int:    alto       = 1080;
+    string:    alto       = "1080";
     float:  escala     = 1.5;
     string: titulo     = "Mi video personal";
-
+    
     video:  intro      = "intro.mp4";
     audio:  cancion    = "musica.mp3";
 
@@ -36,10 +36,10 @@ main {
     }
 
     int: i = 0;
-    while (i < 3) {
-        intro = @velocidad[10];
-        i = i + 1;
-    }
+//    while ("hola") {
+//        intro = @velocidad[10];
+//        i = i + 1;
+//    }
 
 
     // ── 5.1 Scopes anidados ─────────────────────────────────

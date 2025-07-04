@@ -232,9 +232,9 @@ def _build_statement(node):
 
     if prod.symbol == "IfStmt":
         if_tok = prod.children[0].token  # 'if' token
-        condition = build_expr(prod.children[2])  # Expression between parentheses
+        condition = build_expr(prod.children[2])  # (Expression) 
         then_block = build_block(prod.children[4])  # Block after condition
-        # Check for optional else block
+        # Check optional else block
         else_block = None
         if len(prod.children) > 5 and prod.children[5].children:  # Has ElseOpt with content
             else_block = build_block(prod.children[5].children[1])  # Block after 'else'
