@@ -48,7 +48,23 @@ class Translator:
             # Store variable type in symbol table
             self.symbol_table[stmt.name] = stmt.var_type
         elif isinstance(stmt, Assignment):
-            self.translate_assignment(stmt)
+            if isinstance(stmt.expr, VideoFuncCall):
+                # For video functions, we need to handle the first argument if it's the video itself
+                func_str = self.translate_video_func(stmt.expr)
+                if stmt.expr.func == "@concatenar":
+                    self.write(f"{stmt.name} = {func_str}")
+                elif stmt.expr.func == "@resize" and stmt.expr.args and isinstance(stmt.expr.args[0], Identifier):
+                    # Skip the first argument if it's the video itself
+                    args = stmt.expr.args[1:]  # Remove the first argument
+                    modified_call = VideoFuncCall(stmt.expr.func, args)
+                    func_str = self.translate_video_func(modified_call)
+                    self.write(f"{stmt.name} = {stmt.name}{func_str}")
+                else:
+                    self.write(f"{stmt.name} = {stmt.name}{func_str}")
+            else:
+                # Regular assignment
+                expr = self.translate_expr(stmt.expr)
+                self.write(f"{stmt.name} = {expr}")
         elif isinstance(stmt, ExportStmt):
             self.translate_export(stmt)
         elif isinstance(stmt, IfStmt):
@@ -67,10 +83,6 @@ class Translator:
         else:
             self.write(f"{decl.name} = {init_expr}")
             
-    def translate_assignment(self, assign):
-        expr = self.translate_expr(assign.expr)
-        self.write(f"{assign.name} = {expr}")
-        
     def translate_export(self, export):
         # Asegurarse de que el nombre del archivo tenga comillas
         out_file = export.out_file.strip('"')  # Remover comillas existentes
@@ -134,36 +146,36 @@ class Translator:
         def format_arg(arg):
             if isinstance(arg, str) and (arg.startswith('"') or arg.endswith('"')):
                 return f'"{arg.strip('"')}"' # Reiniciar comillas
-            return arg
+            return str(arg)
 
         args = [format_arg(self.translate_expr(arg)) for arg in func.args]
         
         # Mapeo de funciones de video a moviepy con validación de argumentos
         video_funcs = {
             "@resize": lambda args: (
-                f".resize(width={args[1]}, height={args[2]})" 
-                if len(args) >= 3 
+                f".resize(width={args[0]}, height={args[1]})" 
+                if len(args) >= 2 
                 else ".resize()"
             ),
             "@flip": lambda args: (
                 f".fx(vfx.mirror_x)" 
-                if len(args) > 0 and "horizontal" in args[0].strip('"') 
+                if len(args) > 0 and "horizontal" in str(args[0]).strip('"').lower()
                 else f".fx(vfx.mirror_y)"
             ),
             "@velocidad": lambda args: (
-                f".speedx({args[0]})" 
+                f".speedx(factor={args[0]})" 
                 if len(args) > 0 
-                else ".speedx(1.0)"
+                else ".speedx(factor=1.0)"
             ),
             "@fadein": lambda args: (
-                f".fadein({args[0]})" 
+                f".fadein(duration={args[0]})" 
                 if len(args) > 0 
-                else ".fadein(1.0)"
+                else ".fadein(duration=1.0)"
             ),
             "@fadeout": lambda args: (
-                f".fadeout({args[0]})" 
+                f".fadeout(duration={args[0]})" 
                 if len(args) > 0 
-                else ".fadeout(1.0)"
+                else ".fadeout(duration=1.0)"
             ),
             "@silencio": lambda args: ".without_audio()",
             "@quitar_audio": lambda args: ".without_audio()",
@@ -173,14 +185,14 @@ class Translator:
                 else ".set_audio(None)"
             ),
             "@concatenar": lambda args: (
-                f".concatenate_videoclips([{args[0]}, {args[1]}])" 
+                f"concatenate_videoclips([{args[0]}, {args[1]}])" 
                 if len(args) >= 2 
-                else ".concatenate_videoclips([])"
+                else "concatenate_videoclips([])"
             ),
             "@cortar": lambda args: (
-                f".subclip({args[0]}, {args[1]})" 
+                f".subclip(t_start={args[0]}, t_end={args[1]})" 
                 if len(args) >= 2 
-                else ".subclip(0)"
+                else ".subclip(t_start=0)"
             )
         }
         
@@ -188,7 +200,11 @@ class Translator:
             raise ValueError(f"Función de video no soportada: {func.func}")
         
         try:
-            return video_funcs[func.func](args)
+            result = video_funcs[func.func](args)
+            # Special case for concatenate which doesn't need the dot prefix
+            if func.func == "@concatenar":
+                return result
+            return result
         except Exception as e:
             print(f"Error al traducir función {func.func} con argumentos {args}: {str(e)}")
             return f".{func.func.replace('@', '')}()"
