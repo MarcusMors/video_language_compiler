@@ -1,0 +1,817 @@
+--- TOKENS ---
+MAIN                 [ main ] -> 2:1
+LBRACE               [ { ] -> 2:6
+VIDEO_TYPE           [ video ] -> 3:5
+COLON                [ : ] -> 3:10
+IDENTIFIER           [ intro ] -> 3:13
+ASSIGN               [ = ] -> 3:24
+STRING_LITERAL       [ intro.mp4" ] -> 3:26
+SEMICOLON            [ ; ] -> 3:37
+AUDIO_TYPE           [ audio ] -> 4:5
+COLON                [ : ] -> 4:10
+IDENTIFIER           [ cancion ] -> 4:13
+ASSIGN               [ = ] -> 4:24
+STRING_LITERAL       [ musica.mp3" ] -> 4:26
+SEMICOLON            [ ; ] -> 4:38
+IDENTIFIER           [ intro ] -> 7:5
+ASSIGN               [ = ] -> 7:11
+VIDEO_RESIZE         [ @resize ] -> 7:13
+LBRACKET             [ [ ] -> 7:20
+IDENTIFIER           [ intro ] -> 7:21
+COMMA                [ , ] -> 7:26
+INT_LITERAL          [ 1280 ] -> 7:28
+COMMA                [ , ] -> 7:32
+INT_LITERAL          [ 720 ] -> 7:34
+RBRACKET             [ ] ] -> 7:37
+SEMICOLON            [ ; ] -> 7:38
+IDENTIFIER           [ intro ] -> 8:5
+ASSIGN               [ = ] -> 8:11
+VIDEO_FLIP           [ @flip ] -> 8:13
+LBRACKET             [ [ ] -> 8:18
+STRING_LITERAL       [ horizontal" ] -> 8:19
+RBRACKET             [ ] ] -> 8:31
+SEMICOLON            [ ; ] -> 8:32
+IDENTIFIER           [ intro ] -> 9:5
+ASSIGN               [ = ] -> 9:11
+VIDEO_VELOCIDAD      [ @velocidad ] -> 9:13
+LBRACKET             [ [ ] -> 9:23
+INT_LITERAL          [ 1 ] -> 9:24
+RBRACKET             [ ] ] -> 9:25
+SEMICOLON            [ ; ] -> 9:26
+EXPORT               [ exportar ] -> 11:5
+IDENTIFIER           [ intro ] -> 11:14
+AS                   [ como ] -> 11:22
+STRING_LITERAL       [ salida.mp4" ] -> 11:27
+SEMICOLON            [ ; ] -> 11:39
+EXPORT               [ exportar ] -> 12:5
+IDENTIFIER           [ cancion ] -> 12:14
+AS                   [ como ] -> 12:22
+STRING_LITERAL       [ salida.mp3" ] -> 12:27
+SEMICOLON            [ ; ] -> 12:39
+RBRACE               [ } ] -> 13:1
+EOF
+
+Análisis léxico completado sin errores
+=== Inicio del parser LL(1) paso a paso ===
+
+[EXPAND]   No-terminal: Program          Lookahead: MAIN            ('main')
+[RULE]     Program         -> MAIN Block EOF
+
+[MATCH]    Línea   2, Col   1  Terminal esperado: MAIN             Token actual: MAIN            ('main')
+[EXPAND]   No-terminal: Block            Lookahead: LBRACE          ('{')
+[RULE]     Block           -> LBRACE StmtList RBRACE
+
+[MATCH]    Línea   2, Col   6  Terminal esperado: LBRACE           Token actual: LBRACE          ('{')
+[EXPAND]   No-terminal: StmtList         Lookahead: VIDEO_TYPE      ('video')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: VIDEO_TYPE      ('video')
+[RULE]     Stmt            -> VarDecl SEMICOLON
+
+[EXPAND]   No-terminal: VarDecl          Lookahead: VIDEO_TYPE      ('video')
+[RULE]     VarDecl         -> Type COLON IDENTIFIER VarInitOpt
+
+[EXPAND]   No-terminal: Type             Lookahead: VIDEO_TYPE      ('video')
+[RULE]     Type            -> VIDEO_TYPE
+
+[MATCH]    Línea   3, Col   5  Terminal esperado: VIDEO_TYPE       Token actual: VIDEO_TYPE      ('video')
+[MATCH]    Línea   3, Col  10  Terminal esperado: COLON            Token actual: COLON           (':')
+[MATCH]    Línea   3, Col  13  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[EXPAND]   No-terminal: VarInitOpt       Lookahead: ASSIGN          ('=')
+[RULE]     VarInitOpt      -> ASSIGN Expr
+
+[MATCH]    Línea   3, Col  24  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Factor          -> STRING_LITERAL
+
+[MATCH]    Línea   3, Col  26  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('intro.mp4"')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   3, Col  37  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     Stmt            -> VarDecl SEMICOLON
+
+[EXPAND]   No-terminal: VarDecl          Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     VarDecl         -> Type COLON IDENTIFIER VarInitOpt
+
+[EXPAND]   No-terminal: Type             Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     Type            -> AUDIO_TYPE
+
+[MATCH]    Línea   4, Col   5  Terminal esperado: AUDIO_TYPE       Token actual: AUDIO_TYPE      ('audio')
+[MATCH]    Línea   4, Col  10  Terminal esperado: COLON            Token actual: COLON           (':')
+[MATCH]    Línea   4, Col  13  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('cancion')
+[EXPAND]   No-terminal: VarInitOpt       Lookahead: ASSIGN          ('=')
+[RULE]     VarInitOpt      -> ASSIGN Expr
+
+[MATCH]    Línea   4, Col  24  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Factor          -> STRING_LITERAL
+
+[MATCH]    Línea   4, Col  26  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('musica.mp3"')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   4, Col  38  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   7, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   7, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     FunctionCall    -> VIDEO_RESIZE LBRACKET ResizeArgs RBRACKET
+
+[MATCH]    Línea   7, Col  13  Terminal esperado: VIDEO_RESIZE     Token actual: VIDEO_RESIZE    ('@resize')
+[MATCH]    Línea   7, Col  20  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: ResizeArgs       Lookahead: IDENTIFIER      ('intro')
+[RULE]     ResizeArgs      -> IDENTIFIER COMMA INT_LITERAL COMMA INT_LITERAL
+
+[MATCH]    Línea   7, Col  21  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   7, Col  26  Terminal esperado: COMMA            Token actual: COMMA           (',')
+[MATCH]    Línea   7, Col  28  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('1280')
+[MATCH]    Línea   7, Col  32  Terminal esperado: COMMA            Token actual: COMMA           (',')
+[MATCH]    Línea   7, Col  34  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('720')
+[MATCH]    Línea   7, Col  37  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   7, Col  38  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   8, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   8, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     FunctionCall    -> VIDEO_FLIP LBRACKET FlipArgs RBRACKET
+
+[MATCH]    Línea   8, Col  13  Terminal esperado: VIDEO_FLIP       Token actual: VIDEO_FLIP      ('@flip')
+[MATCH]    Línea   8, Col  18  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: FlipArgs         Lookahead: STRING_LITERAL  ('horizontal"')
+[RULE]     FlipArgs        -> STRING_LITERAL
+
+[MATCH]    Línea   8, Col  19  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('horizontal"')
+[MATCH]    Línea   8, Col  31  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   8, Col  32  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   9, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   9, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     FunctionCall    -> VIDEO_VELOCIDAD LBRACKET VelocidadArgs RBRACKET
+
+[MATCH]    Línea   9, Col  13  Terminal esperado: VIDEO_VELOCIDAD  Token actual: VIDEO_VELOCIDAD ('@velocidad')
+[MATCH]    Línea   9, Col  23  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: VelocidadArgs    Lookahead: INT_LITERAL     ('1')
+[RULE]     VelocidadArgs   -> Number
+
+[EXPAND]   No-terminal: Number           Lookahead: INT_LITERAL     ('1')
+[RULE]     Number          -> INT_LITERAL
+
+[MATCH]    Línea   9, Col  24  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('1')
+[MATCH]    Línea   9, Col  25  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   9, Col  26  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: EXPORT          ('exportar')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: EXPORT          ('exportar')
+[RULE]     Stmt            -> ExportStmt SEMICOLON
+
+[EXPAND]   No-terminal: ExportStmt       Lookahead: EXPORT          ('exportar')
+[RULE]     ExportStmt      -> EXPORT IDENTIFIER AS STRING_LITERAL
+
+[MATCH]    Línea  11, Col   5  Terminal esperado: EXPORT           Token actual: EXPORT          ('exportar')
+[MATCH]    Línea  11, Col  14  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea  11, Col  22  Terminal esperado: AS               Token actual: AS              ('como')
+[MATCH]    Línea  11, Col  27  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('salida.mp4"')
+[MATCH]    Línea  11, Col  39  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: EXPORT          ('exportar')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: EXPORT          ('exportar')
+[RULE]     Stmt            -> ExportStmt SEMICOLON
+
+[EXPAND]   No-terminal: ExportStmt       Lookahead: EXPORT          ('exportar')
+[RULE]     ExportStmt      -> EXPORT IDENTIFIER AS STRING_LITERAL
+
+[MATCH]    Línea  12, Col   5  Terminal esperado: EXPORT           Token actual: EXPORT          ('exportar')
+[MATCH]    Línea  12, Col  14  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('cancion')
+[MATCH]    Línea  12, Col  22  Terminal esperado: AS               Token actual: AS              ('como')
+[MATCH]    Línea  12, Col  27  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('salida.mp3"')
+[MATCH]    Línea  12, Col  39  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: RBRACE          ('}')
+[RULE]     StmtList        -> ε
+
+[MATCH]    Línea  13, Col   1  Terminal esperado: RBRACE           Token actual: RBRACE          ('}')
+[MATCH]    Línea  15, Col   1  Terminal esperado: EOF              Token actual: EOF             ('')
+=== Fin del parser paso a paso ===
+
+Parse tree visualizado en parsetree.png
+Análisis sintáctico completado sin errores.
+Análisis semántico OK. Generando AST…
+AST visualizado en ast.png
+=== Inicio del parser LL(1) paso a paso ===
+
+[EXPAND]   No-terminal: Program          Lookahead: MAIN            ('main')
+[RULE]     Program         -> MAIN Block EOF
+
+[MATCH]    Línea   2, Col   1  Terminal esperado: MAIN             Token actual: MAIN            ('main')
+[EXPAND]   No-terminal: Block            Lookahead: LBRACE          ('{')
+[RULE]     Block           -> LBRACE StmtList RBRACE
+
+[MATCH]    Línea   2, Col   6  Terminal esperado: LBRACE           Token actual: LBRACE          ('{')
+[EXPAND]   No-terminal: StmtList         Lookahead: VIDEO_TYPE      ('video')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: VIDEO_TYPE      ('video')
+[RULE]     Stmt            -> VarDecl SEMICOLON
+
+[EXPAND]   No-terminal: VarDecl          Lookahead: VIDEO_TYPE      ('video')
+[RULE]     VarDecl         -> Type COLON IDENTIFIER VarInitOpt
+
+[EXPAND]   No-terminal: Type             Lookahead: VIDEO_TYPE      ('video')
+[RULE]     Type            -> VIDEO_TYPE
+
+[MATCH]    Línea   3, Col   5  Terminal esperado: VIDEO_TYPE       Token actual: VIDEO_TYPE      ('video')
+[MATCH]    Línea   3, Col  10  Terminal esperado: COLON            Token actual: COLON           (':')
+[MATCH]    Línea   3, Col  13  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[EXPAND]   No-terminal: VarInitOpt       Lookahead: ASSIGN          ('=')
+[RULE]     VarInitOpt      -> ASSIGN Expr
+
+[MATCH]    Línea   3, Col  24  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: STRING_LITERAL  ('intro.mp4"')
+[RULE]     Factor          -> STRING_LITERAL
+
+[MATCH]    Línea   3, Col  26  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('intro.mp4"')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   3, Col  37  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     Stmt            -> VarDecl SEMICOLON
+
+[EXPAND]   No-terminal: VarDecl          Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     VarDecl         -> Type COLON IDENTIFIER VarInitOpt
+
+[EXPAND]   No-terminal: Type             Lookahead: AUDIO_TYPE      ('audio')
+[RULE]     Type            -> AUDIO_TYPE
+
+[MATCH]    Línea   4, Col   5  Terminal esperado: AUDIO_TYPE       Token actual: AUDIO_TYPE      ('audio')
+[MATCH]    Línea   4, Col  10  Terminal esperado: COLON            Token actual: COLON           (':')
+[MATCH]    Línea   4, Col  13  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('cancion')
+[EXPAND]   No-terminal: VarInitOpt       Lookahead: ASSIGN          ('=')
+[RULE]     VarInitOpt      -> ASSIGN Expr
+
+[MATCH]    Línea   4, Col  24  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: STRING_LITERAL  ('musica.mp3"')
+[RULE]     Factor          -> STRING_LITERAL
+
+[MATCH]    Línea   4, Col  26  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('musica.mp3"')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   4, Col  38  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   7, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   7, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_RESIZE    ('@resize')
+[RULE]     FunctionCall    -> VIDEO_RESIZE LBRACKET ResizeArgs RBRACKET
+
+[MATCH]    Línea   7, Col  13  Terminal esperado: VIDEO_RESIZE     Token actual: VIDEO_RESIZE    ('@resize')
+[MATCH]    Línea   7, Col  20  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: ResizeArgs       Lookahead: IDENTIFIER      ('intro')
+[RULE]     ResizeArgs      -> IDENTIFIER COMMA INT_LITERAL COMMA INT_LITERAL
+
+[MATCH]    Línea   7, Col  21  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   7, Col  26  Terminal esperado: COMMA            Token actual: COMMA           (',')
+[MATCH]    Línea   7, Col  28  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('1280')
+[MATCH]    Línea   7, Col  32  Terminal esperado: COMMA            Token actual: COMMA           (',')
+[MATCH]    Línea   7, Col  34  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('720')
+[MATCH]    Línea   7, Col  37  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   7, Col  38  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   8, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   8, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_FLIP      ('@flip')
+[RULE]     FunctionCall    -> VIDEO_FLIP LBRACKET FlipArgs RBRACKET
+
+[MATCH]    Línea   8, Col  13  Terminal esperado: VIDEO_FLIP       Token actual: VIDEO_FLIP      ('@flip')
+[MATCH]    Línea   8, Col  18  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: FlipArgs         Lookahead: STRING_LITERAL  ('horizontal"')
+[RULE]     FlipArgs        -> STRING_LITERAL
+
+[MATCH]    Línea   8, Col  19  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('horizontal"')
+[MATCH]    Línea   8, Col  31  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   8, Col  32  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: IDENTIFIER      ('intro')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: IDENTIFIER      ('intro')
+[RULE]     Stmt            -> Assignment SEMICOLON
+
+[EXPAND]   No-terminal: Assignment       Lookahead: IDENTIFIER      ('intro')
+[RULE]     Assignment      -> IDENTIFIER ASSIGN Expr
+
+[MATCH]    Línea   9, Col   5  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea   9, Col  11  Terminal esperado: ASSIGN           Token actual: ASSIGN          ('=')
+[EXPAND]   No-terminal: Expr             Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Expr            -> OrExpr
+
+[EXPAND]   No-terminal: OrExpr           Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     OrExpr          -> AndExpr OrExpr'
+
+[EXPAND]   No-terminal: AndExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     AndExpr         -> EqualityExpr AndExpr'
+
+[EXPAND]   No-terminal: EqualityExpr     Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     EqualityExpr    -> RelExpr EqualityExpr'
+
+[EXPAND]   No-terminal: RelExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     RelExpr         -> AddExpr RelExpr'
+
+[EXPAND]   No-terminal: AddExpr          Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     AddExpr         -> Term AddExpr'
+
+[EXPAND]   No-terminal: Term             Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Term            -> Factor Term'
+
+[EXPAND]   No-terminal: Factor           Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     Factor          -> FunctionCall
+
+[EXPAND]   No-terminal: FunctionCall     Lookahead: VIDEO_VELOCIDAD ('@velocidad')
+[RULE]     FunctionCall    -> VIDEO_VELOCIDAD LBRACKET VelocidadArgs RBRACKET
+
+[MATCH]    Línea   9, Col  13  Terminal esperado: VIDEO_VELOCIDAD  Token actual: VIDEO_VELOCIDAD ('@velocidad')
+[MATCH]    Línea   9, Col  23  Terminal esperado: LBRACKET         Token actual: LBRACKET        ('[')
+[EXPAND]   No-terminal: VelocidadArgs    Lookahead: INT_LITERAL     ('1')
+[RULE]     VelocidadArgs   -> Number
+
+[EXPAND]   No-terminal: Number           Lookahead: INT_LITERAL     ('1')
+[RULE]     Number          -> INT_LITERAL
+
+[MATCH]    Línea   9, Col  24  Terminal esperado: INT_LITERAL      Token actual: INT_LITERAL     ('1')
+[MATCH]    Línea   9, Col  25  Terminal esperado: RBRACKET         Token actual: RBRACKET        (']')
+[EXPAND]   No-terminal: Term'            Lookahead: SEMICOLON       (';')
+[RULE]     Term'           -> ε
+
+[EXPAND]   No-terminal: AddExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AddExpr'        -> ε
+
+[EXPAND]   No-terminal: RelExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     RelExpr'        -> ε
+
+[EXPAND]   No-terminal: EqualityExpr'    Lookahead: SEMICOLON       (';')
+[RULE]     EqualityExpr'   -> ε
+
+[EXPAND]   No-terminal: AndExpr'         Lookahead: SEMICOLON       (';')
+[RULE]     AndExpr'        -> ε
+
+[EXPAND]   No-terminal: OrExpr'          Lookahead: SEMICOLON       (';')
+[RULE]     OrExpr'         -> ε
+
+[MATCH]    Línea   9, Col  26  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: EXPORT          ('exportar')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: EXPORT          ('exportar')
+[RULE]     Stmt            -> ExportStmt SEMICOLON
+
+[EXPAND]   No-terminal: ExportStmt       Lookahead: EXPORT          ('exportar')
+[RULE]     ExportStmt      -> EXPORT IDENTIFIER AS STRING_LITERAL
+
+[MATCH]    Línea  11, Col   5  Terminal esperado: EXPORT           Token actual: EXPORT          ('exportar')
+[MATCH]    Línea  11, Col  14  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('intro')
+[MATCH]    Línea  11, Col  22  Terminal esperado: AS               Token actual: AS              ('como')
+[MATCH]    Línea  11, Col  27  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('salida.mp4"')
+[MATCH]    Línea  11, Col  39  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: EXPORT          ('exportar')
+[RULE]     StmtList        -> Stmt StmtList
+
+[EXPAND]   No-terminal: Stmt             Lookahead: EXPORT          ('exportar')
+[RULE]     Stmt            -> ExportStmt SEMICOLON
+
+[EXPAND]   No-terminal: ExportStmt       Lookahead: EXPORT          ('exportar')
+[RULE]     ExportStmt      -> EXPORT IDENTIFIER AS STRING_LITERAL
+
+[MATCH]    Línea  12, Col   5  Terminal esperado: EXPORT           Token actual: EXPORT          ('exportar')
+[MATCH]    Línea  12, Col  14  Terminal esperado: IDENTIFIER       Token actual: IDENTIFIER      ('cancion')
+[MATCH]    Línea  12, Col  22  Terminal esperado: AS               Token actual: AS              ('como')
+[MATCH]    Línea  12, Col  27  Terminal esperado: STRING_LITERAL   Token actual: STRING_LITERAL  ('salida.mp3"')
+[MATCH]    Línea  12, Col  39  Terminal esperado: SEMICOLON        Token actual: SEMICOLON       (';')
+[EXPAND]   No-terminal: StmtList         Lookahead: RBRACE          ('}')
+[RULE]     StmtList        -> ε
+
+[MATCH]    Línea  13, Col   1  Terminal esperado: RBRACE           Token actual: RBRACE          ('}')
+[MATCH]    Línea  15, Col   1  Terminal esperado: EOF              Token actual: EOF             ('')
+=== Fin del parser paso a paso ===
+
+Warning: @resize called with too few arguments at line 7
+Warning: @flip called with too few arguments at line 8
+Warning: @velocidad called with too few arguments at line 9
+Código Python generado en output.py
+
+=== Iniciando análisis léxico ===
+--- Análisis léxico completado sin errores. ---
+
+=== Iniciando análisis sintáctico ===
+--- Análisis sintáctico completado sin errores. ---
+
+=== Iniciando análisis semántico ===
+--- Análisis semántico completado sin errores. ---
+
+=== Iniciando traducción a Python ===
+--- Traducción a python completado sin errores. ---
+
+=== ¡Compilación completada con éxito! ===
+Código Python generado en: output.py

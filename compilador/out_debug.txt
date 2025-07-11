@@ -1,0 +1,56 @@
+func_tok=Token(type=<TokenType.VIDEO_RESIZE: 39>, value='@resize', line=6, column=13)
+children=[ParseNode(TokenType.VIDEO_RESIZE, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(ResizeArgs, children=5), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@resize', '[', ']']
+args_pt.children=[ParseNode(TokenType.IDENTIFIER, children=0), ParseNode(TokenType.COMMA, children=0), ParseNode(TokenType.INT_LITERAL, children=0), ParseNode(TokenType.COMMA, children=0), ParseNode(TokenType.INT_LITERAL, children=0)]
+children2_token_values=['intro', ',', '1280', ',', '720']
+_extract_exprs(args_pt)=[]
+e=ParseNode(TokenType.IDENTIFIER, children=0)
+e=ParseNode(TokenType.COMMA, children=0)
+e=ParseNode(TokenType.INT_LITERAL, children=0)
+e=ParseNode(TokenType.COMMA, children=0)
+e=ParseNode(TokenType.INT_LITERAL, children=0)
+
+func_tok=Token(type=<TokenType.VIDEO_FLIP: 40>, value='@flip', line=7, column=13)
+children=[ParseNode(TokenType.VIDEO_FLIP, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(FlipArgs, children=1), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@flip', '[', ']']
+args_pt.children=[ParseNode(TokenType.STRING_LITERAL, children=0)]
+children2_token_values=['horizontal"']
+_extract_exprs(args_pt)=[]
+e=ParseNode(TokenType.STRING_LITERAL, children=0)
+
+func_tok=Token(type=<TokenType.VIDEO_VELOCIDAD: 41>, value='@velocidad', line=8, column=13)
+children=[ParseNode(TokenType.VIDEO_VELOCIDAD, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(VelocidadArgs, children=1), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@velocidad', '[', ']']
+args_pt.children=[ParseNode(Number, children=1)]
+children2_token_values=[]
+_extract_exprs(args_pt)=[]
+e=ParseNode(Number, children=1)
+
+func_tok=Token(type=<TokenType.VIDEO_RESIZE: 39>, value='@resize', line=6, column=13)
+children=[ParseNode(TokenType.VIDEO_RESIZE, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(ResizeArgs, children=5), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@resize', '[', ']']
+args_pt.children=[ParseNode(TokenType.IDENTIFIER, children=0), ParseNode(TokenType.COMMA, children=0), ParseNode(TokenType.INT_LITERAL, children=0), ParseNode(TokenType.COMMA, children=0), ParseNode(TokenType.INT_LITERAL, children=0)]
+children2_token_values=['intro', ',', '1280', ',', '720']
+_extract_exprs(args_pt)=[]
+e=ParseNode(TokenType.IDENTIFIER, children=0)
+e=ParseNode(TokenType.COMMA, children=0)
+e=ParseNode(TokenType.INT_LITERAL, children=0)
+e=ParseNode(TokenType.COMMA, children=0)
+e=ParseNode(TokenType.INT_LITERAL, children=0)
+
+func_tok=Token(type=<TokenType.VIDEO_FLIP: 40>, value='@flip', line=7, column=13)
+children=[ParseNode(TokenType.VIDEO_FLIP, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(FlipArgs, children=1), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@flip', '[', ']']
+args_pt.children=[ParseNode(TokenType.STRING_LITERAL, children=0)]
+children2_token_values=['horizontal"']
+_extract_exprs(args_pt)=[]
+e=ParseNode(TokenType.STRING_LITERAL, children=0)
+
+func_tok=Token(type=<TokenType.VIDEO_VELOCIDAD: 41>, value='@velocidad', line=8, column=13)
+children=[ParseNode(TokenType.VIDEO_VELOCIDAD, children=0), ParseNode(TokenType.LBRACKET, children=0), ParseNode(VelocidadArgs, children=1), ParseNode(TokenType.RBRACKET, children=0)]
+children_token_values=['@velocidad', '[', ']']
+args_pt.children=[ParseNode(Number, children=1)]
+children2_token_values=[]
+_extract_exprs(args_pt)=[]
+e=ParseNode(Number, children=1)
+

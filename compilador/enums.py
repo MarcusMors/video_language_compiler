@@ -8,6 +8,7 @@ utilizadas por el lexer para convertir los lexemas de la entrada en
 tipos de token.
 """
 
+
 class TokenType(enum.Enum):
     # --- Palabras clave del lenguaje ---
     MAIN = enum.auto()
@@ -37,18 +38,18 @@ class TokenType(enum.Enum):
 
     # — Operadores aritméticos —
     ASSIGN = enum.auto()  # '='
-    PLUS = enum.auto()    # '+'
-    MINUS = enum.auto()   # '-'
-    MULT = enum.auto()    # '*'
-    DIV = enum.auto()     # '/'
+    PLUS = enum.auto()  # '+'
+    MINUS = enum.auto()  # '-'
+    MULT = enum.auto()  # '*'
+    DIV = enum.auto()  # '/'
 
     # — Comparaciones —
-    EQ = enum.auto()   # '=='
+    EQ = enum.auto()  # '=='
     NEQ = enum.auto()  # '!='
-    LT = enum.auto()   # '<'
-    GT = enum.auto()   # '>'
-    LE = enum.auto()   # '<='
-    GE = enum.auto()   # '>='
+    LT = enum.auto()  # '<'
+    GT = enum.auto()  # '>'
+    LE = enum.auto()  # '<='
+    GE = enum.auto()  # '>='
 
     # — Símbolos —
     LPAREN = enum.auto()
@@ -61,8 +62,8 @@ class TokenType(enum.Enum):
     SEMICOLON = enum.auto()
     COLON = enum.auto()
 
-    # — Funciones especiales de video —
     VIDEO_RESIZE = enum.auto()
+    # — Funciones especiales de video —
     VIDEO_FLIP = enum.auto()
     VIDEO_VELOCIDAD = enum.auto()
     VIDEO_FADEIN = enum.auto()
@@ -87,25 +88,21 @@ LEXEME_TO_TOKEN: dict[str, TokenType] = {
     "while": TokenType.WHILE,
     "exportar": TokenType.EXPORT,
     "como": TokenType.AS,
-
     # tipos
     "int": TokenType.INT_TYPE,
     "float": TokenType.FLOAT_TYPE,
     "string": TokenType.STRING_TYPE,
     "video": TokenType.VIDEO_TYPE,
     "audio": TokenType.AUDIO_TYPE,
-
     # literales lógicos
     "not": TokenType.NOT,
     "and": TokenType.AND,
     "or": TokenType.OR,
-
     # operadores compuestos
     "==": TokenType.EQ,
     "!=": TokenType.NEQ,
     "<=": TokenType.LE,
     ">=": TokenType.GE,
-
     # operadores simples y símbolos
     "=": TokenType.ASSIGN,
     "+": TokenType.PLUS,
@@ -123,7 +120,6 @@ LEXEME_TO_TOKEN: dict[str, TokenType] = {
     "(": TokenType.LPAREN,
     ")": TokenType.RPAREN,
     ";": TokenType.SEMICOLON,
-
     # funciones @
     "@resize": TokenType.VIDEO_RESIZE,
     "@flip": TokenType.VIDEO_FLIP,
@@ -137,6 +133,7 @@ LEXEME_TO_TOKEN: dict[str, TokenType] = {
     "@cortar": TokenType.VIDEO_CORTAR,
 }
 
+
 # Representación de un token
 @dataclass(frozen=True)
 class Token:
@@ -148,8 +145,13 @@ class Token:
     def __str__(self):
         return f"{self.type.name:20} [ {self.value} ] -> {self.line}:{self.column}"
 
+
 # Tablas auxiliares for lexer speed
 KEYWORDS = {k: v for k, v in LEXEME_TO_TOKEN.items() if k.isalpha()}
-compound_ops = {k: v for k, v in LEXEME_TO_TOKEN.items() if len(k) == 2 and not k.isalpha() and not k.startswith('@')}
+compound_ops = {
+    k: v
+    for k, v in LEXEME_TO_TOKEN.items()
+    if len(k) == 2 and not k.isalpha() and not k.startswith("@")
+}
 symbols = {k: v for k, v in LEXEME_TO_TOKEN.items() if len(k) == 1 and not k.isalnum()}
-VIDEO_FUNCS = {k: v for k, v in LEXEME_TO_TOKEN.items() if k.startswith('@')}
+VIDEO_FUNCS = {k: v for k, v in LEXEME_TO_TOKEN.items() if k.startswith("@")}

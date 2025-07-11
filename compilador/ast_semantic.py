@@ -8,13 +8,17 @@ Versión **sin soporte para @extraer_audio**
 """
 
 import sys
-from parser2 import TableDrivenParser
-from enums import TokenType
-from graphviz import Digraph
 
-# ─────────────────── Nodos AST ───────────────────
-class ASTNode:                                         
+from graphviz import Digraph
+from parser2 import TableDrivenParser
+
+from enums import TokenType
+
+
+class ASTNode:
+    # ─────────────────── Nodos AST ───────────────────
     """Nodo base abstracto"""
+
     pass
 
 
@@ -47,7 +51,10 @@ class VarDecl(ASTNode):
     def check_semantic(self, st):
         if self.init:
             et = self.init.infer_type(st)
-            if not (self.var_type in ("video", "audio") and et == "string") and et != self.var_type:
+            if (
+                not (self.var_type in ("video", "audio") and et == "string")
+                and et != self.var_type
+            ):
                 raise TypeError(
                     f"Error semántico en línea {self.line}, columna {self.col}: "
                     f"no se puede asignar '{et}' a variable '{self.name}' de tipo '{self.var_type}'"
@@ -127,6 +134,7 @@ class Identifier(ASTNode):
 
 class VideoFuncCall(ASTNode):
     """Nodo para cualquier @función de vídeo (sin @extraer_audio)."""
+
     def __init__(self, func_token, args, line, col):
         self.func = func_token.value
         self.args = args
@@ -144,7 +152,7 @@ class IfStmt(ASTNode):
         self.else_block = else_block
         self.line = line
         self.col = col
-    
+
     def check_semantic(self, st):
         # Check that condition is boolean
         cond_type = self.condition.infer_type(st)
@@ -171,7 +179,7 @@ class WhileStmt(ASTNode):
         self.body = body
         self.line = line
         self.col = col
-    
+
     def check_semantic(self, st):
         # Check that condition is boolean
         cond_type = self.condition.infer_type(st)
@@ -189,8 +197,8 @@ class WhileStmt(ASTNode):
 
 # ─────────────────── Construcción del AST ───────────────────
 def build_ast(pt_root):
-    block = pt_root.children[1]        # MAIN Block EOF
-    stmtlist = block.children[1]       # lista de sentencias
+    block = pt_root.children[1]  # MAIN Block EOF
+    stmtlist = block.children[1]  # lista de sentencias
     return Program(_collect_statements(stmtlist))
 
 
@@ -215,9 +223,15 @@ def _build_statement(node):
 
     if prod.symbol == "VarDecl":
         ident_tok = prod.children[2].token
-        init_expr = build_expr(prod.children[3].children[-1]) if prod.children[3].children else None
+        init_expr = (
+            build_expr(prod.children[3].children[-1])
+            if prod.children[3].children
+            else None
+        )
         vtype = prod.children[0].children[0].symbol.name.replace("_TYPE", "").lower()
-        return VarDecl(vtype, ident_tok.value, init_expr, ident_tok.line, ident_tok.column)
+        return VarDecl(
+            vtype, ident_tok.value, init_expr, ident_tok.line, ident_tok.column
+        )
 
     if prod.symbol == "Assignment":
         ident_tok = prod.children[0].token
@@ -232,11 +246,13 @@ def _build_statement(node):
 
     if prod.symbol == "IfStmt":
         if_tok = prod.children[0].token  # 'if' token
-        condition = build_expr(prod.children[2])  # (Expression) 
+        condition = build_expr(prod.children[2])  # (Expression)
         then_block = build_block(prod.children[4])  # Block after condition
         # Check optional else block
         else_block = None
-        if len(prod.children) > 5 and prod.children[5].children:  # Has ElseOpt with content
+        if (
+            len(prod.children) > 5 and prod.children[5].children
+        ):  # Has ElseOpt with content
             else_block = build_block(prod.children[5].children[1])  # Block after 'else'
         return IfStmt(condition, then_block, else_block, if_tok.line, if_tok.column)
 
@@ -306,9 +322,47 @@ def _extract_exprs(node):
 
 
 def _build_function_call(fc_node):
-    func_tok = fc_node.children[0].token
-    args_pt = fc_node.children[2]
-    arg_asts = [build_expr(e) for e in _extract_exprs(args_pt)]
+    children = fc_node.children
+    func_tok = children[0].token
+    args_pt = children[2]
+    arg_asts = []
+    # arg_asts = [build_expr(e) for e in _extract_exprs(args_pt)]
+
+    # children_token_values = [ch.token.value for ch in children]
+    children_token_values = []
+
+    print(f"{func_tok=}", file=sys.stderr)
+    print(f"{children=}", file=sys.stderr)
+    for i in range(len(children)):
+        if getattr(children[i], "token", None) and getattr(
+            children[i].token, "value", None
+        ):
+            children_token_values.append(children[i].token.value)
+
+    print(f"{children_token_values=}", file=sys.stderr)
+    children2 = args_pt.children
+    children2_token_values = []
+    for i in range(len(children2)):
+        if getattr(children2[i], "token", None) and getattr(
+            children2[i].token, "value", None
+        ):
+            children2_token_values.append(children2[i].token.value)
+
+    print(f"{args_pt.children=}", file=sys.stderr)
+    print(f"{children2_token_values=}", file=sys.stderr)
+    print(f"{_extract_exprs(args_pt)=}", file=sys.stderr)
+
+    for e in args_pt.children:
+        # for e in _extract_exprs(args_pt):
+        print(f"{e=}", file=sys.stderr)
+
+        if e.symbol != TokenType.COMMA:
+            arg_asts.append(build_expr(e))
+            # print(f"----->COMMA DETECTED", file=sys.stderr)
+
+        # if node.TokenType != TokenType.COMMA :
+    print(f"", file=sys.stderr)
+
     return VideoFuncCall(func_tok, arg_asts, func_tok.line, func_tok.column)
 
 
@@ -319,12 +373,18 @@ def _shunting_yard(tokens):
 
     output, ops = [], []
     prec = {
-        TokenType.MULT: 3, TokenType.DIV: 3,
-        TokenType.PLUS: 2, TokenType.MINUS: 2,
-        TokenType.LT: 1,  TokenType.LE: 1,
-        TokenType.GT: 1,  TokenType.GE: 1,
-        TokenType.EQ: 1,  TokenType.NEQ: 1,
-        TokenType.AND: 0, TokenType.OR: 0,
+        TokenType.MULT: 3,
+        TokenType.DIV: 3,
+        TokenType.PLUS: 2,
+        TokenType.MINUS: 2,
+        TokenType.LT: 1,
+        TokenType.LE: 1,
+        TokenType.GT: 1,
+        TokenType.GE: 1,
+        TokenType.EQ: 1,
+        TokenType.NEQ: 1,
+        TokenType.AND: 0,
+        TokenType.OR: 0,
     }
     binops = set(prec)
 
@@ -350,7 +410,9 @@ def _shunting_yard(tokens):
             if ops:
                 ops.pop()
         elif tok.type in binops:
-            while ops and ops[-1].type in binops and prec[ops[-1].type] >= prec[tok.type]:
+            while (
+                ops and ops[-1].type in binops and prec[ops[-1].type] >= prec[tok.type]
+            ):
                 pop()
             ops.append(tok)
 

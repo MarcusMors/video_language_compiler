@@ -1,0 +1,13 @@
+
+main {
+    video:  intro      = "intro.mp4";
+    audio:  cancion    = "musica.mp3";
+
+    intro = @resize[intro, 1280, 720];
+    intro = @flip["horizontal"];
+    intro = @velocidad[1];
+
+    exportar intro   como "salida.mp4";
+    exportar cancion como "salida.mp3";
+}
+

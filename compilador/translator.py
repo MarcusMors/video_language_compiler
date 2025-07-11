@@ -7,11 +7,20 @@ manipulación de video.
 """
 
 import sys
+
 from ast_semantic import (
-    Program, VarDecl, Assignment, ExportStmt, 
-    BinaryOp, Literal, Identifier, VideoFuncCall,
-    IfStmt, WhileStmt
+    Assignment,
+    BinaryOp,
+    ExportStmt,
+    Identifier,
+    IfStmt,
+    Literal,
+    Program,
+    VarDecl,
+    VideoFuncCall,
+    WhileStmt,
 )
+
 
 class Translator:
     def __init__(self):
@@ -50,15 +59,9 @@ class Translator:
         elif isinstance(stmt, Assignment):
             if isinstance(stmt.expr, VideoFuncCall):
                 # For video functions, we need to handle the first argument if it's the video itself
-                func_str = self.translate_video_func(stmt.expr)
+                func_str = self.translate_video_func(stmt.expr, stmt.name)
                 if stmt.expr.func == "@concatenar":
                     self.write(f"{stmt.name} = {func_str}")
-                elif stmt.expr.func == "@resize" and stmt.expr.args and isinstance(stmt.expr.args[0], Identifier):
-                    # Skip the first argument if it's the video itself
-                    args = stmt.expr.args[1:]  # Remove the first argument
-                    modified_call = VideoFuncCall(stmt.expr.func, args)
-                    func_str = self.translate_video_func(modified_call)
-                    self.write(f"{stmt.name} = {stmt.name}{func_str}")
                 else:
                     self.write(f"{stmt.name} = {stmt.name}{func_str}")
             else:
@@ -135,79 +138,128 @@ class Translator:
             return expr.name
         elif isinstance(expr, VideoFuncCall):
             try:
-                return self.translate_video_func(expr)
+                return self.translate_video_func(expr, None)
             except Exception as e:
                 print(f"Error al traducir función de video: {str(e)}")
                 return str(expr)
         return str(expr)
     
-    def translate_video_func(self, func):
-        # Limpiar y formatear argumentos
-        def format_arg(arg):
+    def translate_video_func(self, func, target_var=None):
+        """
+        Translate a video function call to moviepy code
+        Args:
+            func: VideoFuncCall node
+            target_var: Optional name of the target variable (for methods that operate on video objects)
+        """
+        # Helper to validate and format arguments
+        def format_arg(arg, expected_type=None):
+            translated = self.translate_expr(arg)
+            if isinstance(arg, Identifier) and expected_type:
+                var_type = self.symbol_table.get(arg.name)
+                if var_type != expected_type:
+                    raise TypeError(f"Expected {expected_type} argument but got {var_type}")
             if isinstance(arg, str) and (arg.startswith('"') or arg.endswith('"')):
-                return f'"{arg.strip('"')}"' # Reiniciar comillas
-            return str(arg)
+                return f'"{arg.strip('"')}"'
+            return str(translated)
 
-        args = [format_arg(self.translate_expr(arg)) for arg in func.args]
-        
         # Mapeo de funciones de video a moviepy con validación de argumentos
         video_funcs = {
-            "@resize": lambda args: (
-                f".resize(width={args[0]}, height={args[1]})" 
-                if len(args) >= 2 
-                else ".resize()"
-            ),
-            "@flip": lambda args: (
-                f".fx(vfx.mirror_x)" 
-                if len(args) > 0 and "horizontal" in str(args[0]).strip('"').lower()
-                else f".fx(vfx.mirror_y)"
-            ),
-            "@velocidad": lambda args: (
-                f".speedx(factor={args[0]})" 
-                if len(args) > 0 
-                else ".speedx(factor=1.0)"
-            ),
-            "@fadein": lambda args: (
-                f".fadein(duration={args[0]})" 
-                if len(args) > 0 
-                else ".fadein(duration=1.0)"
-            ),
-            "@fadeout": lambda args: (
-                f".fadeout(duration={args[0]})" 
-                if len(args) > 0 
-                else ".fadeout(duration=1.0)"
-            ),
-            "@silencio": lambda args: ".without_audio()",
-            "@quitar_audio": lambda args: ".without_audio()",
-            "@agregar_musica": lambda args: (
-                f".set_audio(AudioFileClip({args[0]}))" 
-                if len(args) > 0 
-                else ".set_audio(None)"
-            ),
-            "@concatenar": lambda args: (
-                f"concatenate_videoclips([{args[0]}, {args[1]}])" 
-                if len(args) >= 2 
-                else "concatenate_videoclips([])"
-            ),
-            "@cortar": lambda args: (
-                f".subclip(t_start={args[0]}, t_end={args[1]})" 
-                if len(args) >= 2 
-                else ".subclip(t_start=0)"
-            )
+            "@resize": {
+                'min_args': 2,
+                'max_args': 2,
+                'translator': lambda args: f".resize(width={args[0]}, height={args[1]})",
+                'default': ".resize()"
+            },
+            "@flip": {
+                'min_args': 1,
+                'max_args': 1,
+                'translator': lambda args: (
+                    f".fx(vfx.mirror_x)"
+                    if "horizontal" in str(args[0]).strip('"').lower()
+                    else f".fx(vfx.mirror_y)"
+                ),
+                'default': ".fx(vfx.mirror_y)"
+            },
+            "@velocidad": {
+                'min_args': 1,
+                'max_args': 1,
+                'translator': lambda args: f".speedx(factor={args[0]})",
+                'default': ".speedx(factor=1.0)"
+            },
+            "@fadein": {
+                'min_args': 1,
+                'max_args': 1,
+                'translator': lambda args: f".fadein(duration={args[0]})",
+                'default': ".fadein(duration=1.0)"
+            },
+            "@fadeout": {
+                'min_args': 1,
+                'max_args': 1,
+                'translator': lambda args: f".fadeout(duration={args[0]})",
+                'default': ".fadeout(duration=1.0)"
+            },
+            "@silencio": {
+                'min_args': 0,
+                'max_args': 0,
+                'translator': lambda args: ".without_audio()",
+                'default': ".without_audio()"
+            },
+            "@quitar_audio": {
+                'min_args': 0,
+                'max_args': 0,
+                'translator': lambda args: ".without_audio()",
+                'default': ".without_audio()"
+            },
+            "@agregar_musica": {
+                'min_args': 1,
+                'max_args': 1,
+                'translator': lambda args: f".set_audio(AudioFileClip({args[0]}))",
+                'default': ".set_audio(None)"
+            },
+            "@concatenar": {
+                'min_args': 2,
+                'max_args': 2,
+                'translator': lambda args: f"concatenate_videoclips([{args[0]}, {args[1]}])",
+                'default': "concatenate_videoclips([])"
+            },
+            "@cortar": {
+                'min_args': 2,
+                'max_args': 2,
+                'translator': lambda args: f".subclip(t_start={args[0]}, t_end={args[1]})",
+                'default': ".subclip(t_start=0)"
+            }
         }
         
+        # Get function info first
         if func.func not in video_funcs:
             raise ValueError(f"Función de video no soportada: {func.func}")
+            
+        func_info = video_funcs[func.func]
         
         try:
-            result = video_funcs[func.func](args)
-            # Special case for concatenate which doesn't need the dot prefix
-            if func.func == "@concatenar":
-                return result
+            # Handle target video variable skipping
+            args = func.args
+            if (target_var and args and 
+                isinstance(args[0], Identifier) and 
+                args[0].name == target_var):
+                args = args[1:]
+
+            # Validate argument count after potential target var removal
+            total_args = len(args)
+            if total_args < func_info['min_args']:
+                print(f"Warning: {func.func} called with too few arguments at line {func.line}")
+                return func_info['default']
+            if total_args > func_info['max_args']:
+                print(f"Warning: {func.func} called with too many arguments at line {func.line}")
+                args = args[:func_info['max_args']]
+
+            formatted_args = [format_arg(arg) for arg in args]
+            result = func_info['translator'](formatted_args)
             return result
+            
         except Exception as e:
-            print(f"Error al traducir función {func.func} con argumentos {args}: {str(e)}")
-            return f".{func.func.replace('@', '')}()"
+            print(f"Error al traducir función {func.func} en línea {func.line}: {str(e)}")
+            return func_info['default']
 
 def main():
     if len(sys.argv) != 3:
